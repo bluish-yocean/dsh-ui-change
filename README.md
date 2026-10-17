@@ -1,0 +1,112 @@
+# dsh-ui-change — DSH 设计规范切换插件
+
+在 DeepSeek Harness（DSH）的设置里切换 `design.md` 设计规范，并把配色、字体、圆角与交互实时套用到界面；内置 17 套设计规范，也支持导入自己的设计 Markdown。
+
+> 按照DSH设计规范，在通用-通用设置-设计规范里内置了17套配色方案可供选择；也可以上传自定义配色MarkDown文件。
+
+## 特性
+
+- **17 套内置设计**：Claude、Airbnb、Apple、BMW、Cursor、Ferrari、HP、IBM、Meta、NVidia、
+  Oracle、PlayStation、SAP、Spotify、Tesla、Webflow、Zapier。每套都由原始 design.md 整理为
+  DSH 消费子集，浅/深两套配色（能拿到原稿暗色表的用原稿，拿不到的按候选链/亮度翻转推导）。
+- **106 个 `--dsw-*` Token**：25 个设计基座（颜色、按钮面、菜单/焦点/tooltip/开关）
+  + 81 个别名引用（`var()` / `color-mix()`，随基座自动跟随）。
+- **组件面**：圆角（`--dsw-radius-xs..xl/panel`）、正文字体与字号（10–22px）、展示字体族，
+  以及侧栏「新会话」按钮的 hover 位移/阴影/过渡（尊重 `prefers-reduced-motion`）。
+- **自定义**：浏览器文件选择器导入 `design.md`；导入/导出 PaletteDoc JSON（可分享配色）。
+- **实时与持久**：经 `ctx.theme.overrideTokens` 单层覆盖，选中即生效；选择存于 DSH 配置，
+  重启/刷新自动恢复。
+
+## 安装
+
+### 前置条件
+
+- DSH（DeepSeek Harness）**≥ 0.2.0-rc.2**，桌面版或 Web 版均可；
+- 插件以「组合包（bundle）」形式安装到当前 profile（默认 `desktop`）。
+
+### 方式 A：从本仓库（推荐开发/本地）
+
+```bash
+git clone https://github.com/bluish-yocean/dsh-ui-change.git
+dsh plugin --profile desktop add <仓库路径>/design-md-switcher
+```
+
+或使用图形界面：**设置 → 插件市场 → 安装插件 → 输入本地目录**
+（选择仓库里的 `design-md-switcher/` 目录）。
+
+安装后刷新页面（或重启 DSH）。
+
+### 方式 B：发布到 npm 之后
+
+```bash
+dsh plugin --profile desktop add design-md-switcher
+```
+
+（如已发布到 registry；当前仓库以本地目录安装为准。）
+
+### 验证安装
+
+打开 **设置 → 通用 → 通用设置 → 设计规范**，应看到 17 套内置设计与「自定义」导入入口；
+选中任意一套，界面配色即时变化。
+
+## 使用
+
+- **切换**：在设计规范列表中点选即应用；选「恢复默认」还原宿主主题。
+- **导入设计**：把 `design.md`（YAML frontmatter：`colors`、可选 `colors.dark`、`typography`、
+  `rounded`、`components.button-new-session.hover`）经文件选择器导入，只在当前会话生效，
+  保存后进入自定义列表。
+- **分享/备份配色**：导出一套设计为 PaletteDoc JSON；导入 JSON 即恢复（只含颜色 Token）。
+- **删除自定义**：在列表里删除；内置设计不可删。
+
+## 内置设计
+
+| id | 名称 | | id | 名称 |
+|---|---|---|---|---|
+| `claude` | Claude | | `nvidia` | NVidia |
+| `airbnb` | Airbnb | | `oracle` | Oracle |
+| `apple` | Apple | | `playstation` | PlayStation |
+| `bmw` | BMW | | `sap` | SAP |
+| `cursor` | Cursor | | `spotify` | Spotify |
+| `ferrari` | Ferrari | | `tesla` | Tesla |
+| `hp` | HP | | `webflow` | Webflow |
+| `ibm` | IBM | | `zapier` | Zapier |
+| `meta` | Meta | | | |
+
+## 项目结构
+
+```
+design-md-switcher/          插件包（安装这一目录）
+  lib/index.js               Host 半侧（空 apply + volatile Config）
+  lib/client.js              客户端全部逻辑：解析 → Token 映射 → 组件面 → 设置行
+  tests/run.js               零依赖测试（69 项）
+  tests/fixtures/builtin/    17 套内置设计与 design/*/design.md 的字节级镜像
+  tests/fixtures/{sap,playstation}.md  原始营销稿（解析健壮性样例）
+  cordis.patch.yml           组合包插入补丁
+design/                      17 份整理后的 DSH 消费子集 design.md
+docs/design-contract.md      解析/映射/应用/兼容性的契约（A–F）
+docs/implementation-notes.md 实现取舍与证据
+research/                    DSH 客户端/主题 API 调研笔记
+```
+
+## 开发
+
+```bash
+node design-md-switcher/tests/run.js     # 69 项测试，零依赖
+```
+
+- 改 `design/*/design.md` 或映射表后，请同步 `tests/fixtures/builtin/<id>.md`（一致性测试会逐项比对）。
+- Token 词表与推导规则以 [docs/design-contract.md](docs/design-contract.md) 为准；
+  新增 Token 需同时补契约、测试与内置常量。
+- 插件可直接以本地目录 link 安装，改动 `lib/client.js` 后刷新页面即可（生产环境）。
+
+## 已知边界
+
+- 组件几何（按钮高度/图标线宽/Tag 尺寸）、阴影层级、`--dsw-static-*` 静态色阶与语法高亮
+  都不在 Token 覆盖范围，宿主写死。
+- 导入的 PaletteDoc 只携带颜色（组件面/ hover 只在内置设计中生效）。
+- 内置设计的浅色/深色以 `design.md` 原稿为准；原稿只有暗色的品牌（如 Spotify）会派生亮色方案。
+
+## License
+
+插件代码 MIT。`design/` 与 `design-md-switcher/tests/fixtures/` 中的设计规范文本源自
+公开的 design-system 分析稿，仅用于样式研究；相关商标与设计归属其各自所有者。

@@ -1,0 +1,11 @@
+# 本地/临时
+.tmp/
+.pnpm-store/
+node_modules/
+design-originals-*/
+design-md/
+需求.md
+
+# 备份
+*.bak-*
+*.bak

@@ -1,0 +1,10 @@
+# design-md-switcher —— 占一条 Loader 行。
+#
+# Host 半侧（lib/index.js）只承载带 volatile 字段的 Config schema（设置命名空间
+# design-md-switcher 的投影来源）；一切解析/映射/应用都在客户端半侧 lib/client.js。
+#
+# name 必须是裸包名：客户端模块系统只把浏览器半侧挂在 specifier 恰为裸包名的
+# Loader 行上（KB adding-a-settings-card.md §5）；id 即设置命名空间。
+- insert:
+    - id: design-md-switcher
+      name: design-md-switcher
