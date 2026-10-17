@@ -106,6 +106,15 @@ node design-md-switcher/tests/run.js     # 69 项测试，零依赖
 - 导入的 PaletteDoc 只携带颜色（组件面/ hover 只在内置设计中生效）。
 - 内置设计的浅色/深色以 `design.md` 原稿为准；原稿只有暗色的品牌（如 Spotify）会派生亮色方案。
 
+## 关于DSH版本兼容
+
+- DSH#v0.1.7上并没有做过兼容性测试，不能保证可以完全正常使用。
+- 想在v0.1.7上使用，可以在 profile 目录的 compatibility.json 里加精确版本豁免，例如：
+```
+json
+{ "design-md-switcher@0.8.2": ["0.1.7-rc.2"] }
+```
+
 ## License
 
 插件代码 MIT。`design/` 与 `design-md-switcher/tests/fixtures/` 中的设计规范文本源自
