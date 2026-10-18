@@ -25,7 +25,17 @@ colors:
   primary-active: "#0057d2"
   primary-disabled: "#475e75"
   dark:
-    surface-dark: "#022879"
+    # 深色取克制的深海军蓝（原稿 navy #022879 过亮）；主色不再走翻转（否则会变成
+    # 荧光蓝），显式给中等饱和的 SAP 蓝。
+    surface-dark: "#0a1b30"
+    surface-dark-elevated: "#162b47"
+    surface-dark-soft: "#142a44"
+    on-dark: "#f5f7fa"
+    on-dark-soft: "#b9c6d6"
+    primary: "#4a74c4"
+    primary-active: "#3a5fa8"
+    hairline: "rgba(245, 247, 250, 0.16)"
+    hairline-soft: "rgba(245, 247, 250, 0.10)"
 typography:
   body:
     fontFamily: "72 Brand Variable"

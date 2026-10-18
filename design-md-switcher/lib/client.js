@@ -539,6 +539,28 @@
         }
       });
     });
+    // v0.8.8：侧栏与主工作区底色至少要有可辨差异；有些设计两者取到同一表面
+    // （SAP/IBM/NVIDIA/BMW 深色、Webflow 浅色），Windows 标题栏布局下就只剩这层色差。
+    // 对比度 < 1.1 时把侧栏改成「bg-base 92% + 文字色 8%」的叠色，两套配色自动跟随。
+    var sidebarModes = tokens['--dsw-specific-sidebar-fill'];
+    var baseModes = tokens['--dsw-alias-bg-base'];
+    if (sidebarModes && baseModes && tokens['--dsw-alias-label-primary']) {
+      ['light', 'dark'].forEach(function (scheme) {
+        var side = parseColor(sidebarModes[scheme]);
+        var base = parseColor(baseModes[scheme]);
+        if (!side || !base) return;
+        var a = side.a == null ? 1 : side.a;
+        var blended = {
+          r: side.r * a + base.r * (1 - a),
+          g: side.g * a + base.g * (1 - a),
+          b: side.b * a + base.b * (1 - a),
+          a: 1
+        };
+        if (contrastRatio(blended, base) < 1.1) {
+          sidebarModes[scheme] = 'color-mix(in srgb, var(--dsw-alias-bg-base) 92%, var(--dsw-alias-label-primary) 8%)';
+        }
+      });
+    }
     return { tokens: tokens, skipped: skipped };
   }
 
@@ -1477,7 +1499,15 @@
         "primary-disabled": "#475e75"
       },
       "darkColors": {
-        "surface-dark": "#022879"
+        "surface-dark": "#0a1b30",
+        "surface-dark-elevated": "#162b47",
+        "surface-dark-soft": "#142a44",
+        "on-dark": "#f5f7fa",
+        "on-dark-soft": "#b9c6d6",
+        "primary": "#4a74c4",
+        "primary-active": "#3a5fa8",
+        "hairline": "rgba(245, 247, 250, 0.16)",
+        "hairline-soft": "rgba(245, 247, 250, 0.10)"
       },
       "unused": {
         "typography": {

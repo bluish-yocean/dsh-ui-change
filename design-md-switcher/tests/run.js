@@ -165,10 +165,15 @@ test('mapper: claude brand-primary lum≈0.27 ≥ 0.25 → dark stays #cc785c (B
   assert.ok(internal.luminance(internal.parseColor('#cc785c')) >= 0.25)
 })
 
-test('mapper: contract B.3 spot-check — sap sidebar = #f5f6f7 / #000000 (ink fallback)', () => {
+test('mapper: contract B.3 spot-check — sap sidebar gets the min-difference tint in both schemes', () => {
   const doc = internal.parseDesignDoc(fixtures.sap)
   const { tokens } = internal.mapDesignToTokens(doc)
-  assert.deepEqual(tokens['--dsw-specific-sidebar-fill'], { light: '#f5f6f7', dark: '#000000' })
+  // 原 fixture 无暗色表：sidebar 与 bg-base 都落到 ink #000000（浅色则与 canvas 几乎同色），
+  // v0.8.8 起用 8% 叠色兜底，保证侧栏与主区可辨。
+  assert.deepEqual(tokens['--dsw-specific-sidebar-fill'], {
+    light: 'color-mix(in srgb, var(--dsw-alias-bg-base) 92%, var(--dsw-alias-label-primary) 8%)',
+    dark: 'color-mix(in srgb, var(--dsw-alias-bg-base) 92%, var(--dsw-alias-label-primary) 8%)'
+  })
 })
 
 test('mapper: contract B.3 spot-check — playstation bg-base dark = #000000 (canvas-dark)', () => {
@@ -240,6 +245,16 @@ test('mapper: v0.8.5 sidebar divider (border-l3/l4) keeps contrast in every pale
     const hi = Math.max(la, lb), lo = Math.min(la, lb)
     return (hi + 0.05) / (lo + 0.05)
   }
+  const SIDEBAR_TINT = 'color-mix(in srgb, var(--dsw-alias-bg-base) 92%, var(--dsw-alias-label-primary) 8%)'
+  const surfaceOf = (tokens, name, scheme) => {
+    const value = tokens[name] && tokens[name][scheme]
+    if (value === SIDEBAR_TINT) {
+      const base = internal.parseColor(tokens['--dsw-alias-bg-base'][scheme])
+      const text = internal.parseColor(tokens['--dsw-alias-label-primary'][scheme])
+      return over(Object.assign({}, text, { a: 0.08 }), base)
+    }
+    return internal.parseColor(value)
+  }
   for (const d of internal.BUILTIN_DESIGNS) {
     const { tokens } = internal.mapDesignToTokens(d)
     assert.deepEqual(tokens['--dsw-alias-border-l3'], { light: l3, dark: l3 }, d.id + ': l3 divider')
@@ -247,12 +262,43 @@ test('mapper: v0.8.5 sidebar divider (border-l3/l4) keeps contrast in every pale
     for (const scheme of ['light', 'dark']) {
       const text = internal.parseColor(tokens['--dsw-alias-label-primary'][scheme])
       for (const surface of ['--dsw-specific-sidebar-fill', '--dsw-alias-bg-base']) {
-        const bg = internal.parseColor(tokens[surface][scheme])
+        const bg = surfaceOf(tokens, surface, scheme)
+        assert.ok(bg, `${d.id}.${scheme} ${surface}: resolvable`)
         const cr = ratio(over(Object.assign({}, text, { a: 0.28 }), bg), bg)
         assert.ok(cr >= 1.5, `${d.id}.${scheme} ${surface}: divider contrast ${cr.toFixed(2)} < 1.5`)
       }
     }
   }
+})
+
+test('mapper: v0.8.8 sidebar and workspace backgrounds differ in every palette', () => {
+  const SIDEBAR_TINT = 'color-mix(in srgb, var(--dsw-alias-bg-base) 92%, var(--dsw-alias-label-primary) 8%)'
+  const over = (c, bg) => {
+    const a = c.a ?? 1
+    return { r: c.r * a + bg.r * (1 - a), g: c.g * a + bg.g * (1 - a), b: c.b * a + bg.b * (1 - a), a: 1 }
+  }
+  const ratio = (a, b) => {
+    const la = internal.luminance(a), lb = internal.luminance(b)
+    const hi = Math.max(la, lb), lo = Math.min(la, lb)
+    return (hi + 0.05) / (lo + 0.05)
+  }
+  for (const d of internal.BUILTIN_DESIGNS) {
+    const { tokens } = internal.mapDesignToTokens(d)
+    for (const scheme of ['light', 'dark']) {
+      const base = internal.parseColor(tokens['--dsw-alias-bg-base'][scheme])
+      const value = tokens['--dsw-specific-sidebar-fill'][scheme]
+      const side = value === SIDEBAR_TINT
+        ? over(Object.assign({}, internal.parseColor(tokens['--dsw-alias-label-primary'][scheme]), { a: 0.08 }), base)
+        : internal.parseColor(value)
+      assert.ok(side, `${d.id}.${scheme}: sidebar resolvable`)
+      const cr = ratio(side, base)
+      assert.ok(cr >= 1.1, `${d.id}.${scheme}: sidebar vs bg-base contrast ${cr.toFixed(2)} < 1.1`)
+    }
+  }
+  // SAP 深色：主色显式给出，不再翻转成荧光蓝；背景是克制的深海军蓝。
+  const sap = internal.mapDesignToTokens(internal.BUILTIN_DESIGNS.find((d) => d.id === 'sap')).tokens
+  assert.equal(sap['--dsw-alias-brand-primary'].dark, '#4a74c4')
+  assert.equal(sap['--dsw-alias-bg-base'].dark, '#0a1b30')
 })
 
 test('mapper: v0.8.7 border-l1/l2 keep contrast against panel surfaces in every palette', () => {
@@ -311,7 +357,7 @@ test('mapper: playstation — rgba() direct dark pass-through + commerce absorbe
   assert.equal(tokens['--dsw-alias-state-idle-primary'].dark, '#cccccc', 'on-dark-mute picked verbatim')
   assert.equal(tokens['--dsw-alias-state-error-primary'].light, '#d53b00', 'error missing → commerce (B.2)')
   assert.equal(tokens['--dsw-specific-sidebar-fill'].light, '#f3f3f3')
-  assert.equal(tokens['--dsw-specific-sidebar-fill'].dark, '#000000', 'canvas-dark picked')
+  assert.equal(tokens['--dsw-specific-sidebar-fill'].dark, 'color-mix(in srgb, var(--dsw-alias-bg-base) 92%, var(--dsw-alias-label-primary) 8%)', 'canvas-dark == bg-base → min-difference tint (v0.8.8)')
 })
 
 test('mapper: playstation state-warn dark = flip(#c81b3a, 0.45, 0.62) since lum < 0.3', () => {
@@ -652,7 +698,7 @@ test('host: lib/index.js exports real-Schema Config (vendored) + empty apply', (
 test('manifest: package.json matches IC-2 verbatim', async () => {
   const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
   assert.equal(pkg.name, 'design-md-switcher')
-  assert.equal(pkg.version, '0.8.7')
+  assert.equal(pkg.version, '0.8.8')
   assert.equal(pkg.type, 'module')
   assert.equal(pkg.main, 'lib/index.js')
   assert.equal(pkg.exports['.'], './lib/index.js')
