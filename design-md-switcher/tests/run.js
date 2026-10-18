@@ -190,7 +190,7 @@ test('mapper: v0.6.0 menu/focus/tooltip/switch tokens follow the design palette'
   assert.deepEqual(claude['--dsw-alias-menu-icon'], { light: '#8e8b82', dark: '#a09d96' }, 'muted-soft / on-dark-soft')
   assert.deepEqual(claude['--dsw-menu-surface-fill'], { light: 'rgba(239, 233, 222, 0.92)', dark: 'rgba(37, 35, 32, 0.9)' }, 'card surface 92% / elevated dark 90%')
   assert.deepEqual(claude['--dsw-focus-ring-color'], { light: '#cc785c', dark: '#cc785c' }, 'brand coral ring in both schemes')
-  assert.deepEqual(claude['--dsw-alias-tooltip-key-bg'], { light: '#f5f0e8', dark: '#faf9f5' }, 'light keycap on the dark tooltip bubble')
+  assert.deepEqual(claude['--dsw-alias-tooltip-key-bg'], { light: 'color-mix(in srgb, var(--dsw-alias-tooltip-bg), white 18%)', dark: 'color-mix(in srgb, var(--dsw-alias-tooltip-bg), white 18%)' }, 'keycap is a lighter shade of the bubble')
   assert.deepEqual(claude['--dsw-alias-switch-thumb'], { light: '#faf9f5', dark: '#faf9f5' })
 
   const ps = internal.mapDesignToTokens(internal.parseDesignDoc(fixtures.playstation)).tokens
@@ -210,6 +210,21 @@ test('mapper: v0.7.0 reference layer follows the base tokens', () => {
   assert.equal(tokens['--dsw-alias-code-diff-added'].light, 'color-mix(in srgb, var(--dsw-alias-state-success-primary) 12%, transparent)')
   for (const [name, expr] of internal.LITERAL_TOKENS) {
     assert.deepEqual(tokens[name], { light: expr, dark: expr }, name + ' is a scheme-neutral reference')
+  }
+})
+
+test('mapper: v0.8.3 tooltip bubble stays dark in all 17 palettes (fixed white label)', () => {
+  const keycap = 'color-mix(in srgb, var(--dsw-alias-tooltip-bg), white 18%)'
+  for (const d of internal.BUILTIN_DESIGNS) {
+    const { tokens } = internal.mapDesignToTokens(d)
+    const bg = tokens['--dsw-alias-tooltip-bg']
+    assert.ok(bg, d.id + ': tooltip-bg is mapped')
+    for (const scheme of ['light', 'dark']) {
+      const rgb = internal.parseColor(bg[scheme])
+      assert.ok(rgb, `${d.id}.${scheme}: parseable tooltip-bg ${JSON.stringify(bg[scheme])}`)
+      assert.ok(internal.luminance(rgb) < 0.25, `${d.id}.${scheme}: tooltip bubble must stay dark for the fixed white label`)
+    }
+    assert.deepEqual(tokens['--dsw-alias-tooltip-key-bg'], { light: keycap, dark: keycap })
   }
 })
 
@@ -577,7 +592,7 @@ test('host: lib/index.js exports real-Schema Config (vendored) + empty apply', (
 test('manifest: package.json matches IC-2 verbatim', async () => {
   const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
   assert.equal(pkg.name, 'design-md-switcher')
-  assert.equal(pkg.version, '0.8.2')
+  assert.equal(pkg.version, '0.8.3')
   assert.equal(pkg.type, 'module')
   assert.equal(pkg.main, 'lib/index.js')
   assert.equal(pkg.exports['.'], './lib/index.js')
@@ -640,10 +655,10 @@ test('client runtime: inject list and token inventory (IC-1/B.3)', () => {
     '--dsw-alias-button-primary-hover', '--dsw-alias-button-contrast-fill',
     '--dsw-alias-button-elevated-fill', '--dsw-alias-button-floating-hover',
     '--dsw-alias-menu-icon', '--dsw-menu-surface-fill', '--dsw-focus-ring-color',
-    '--dsw-alias-tooltip-key-bg', '--dsw-alias-switch-thumb'
+    '--dsw-alias-switch-thumb', '--dsw-alias-tooltip-bg'
   ])
   assert.deepEqual(T.slice(25), internal.LITERAL_TOKENS.map((pair) => pair[0]), 'v0.7.0 reference layer appended in order')
-  assert.ok(internal.LITERAL_TOKENS.every((pair) => pair[1].includes('var(--dsw-')), 'every reference targets a dsw variable')
+  assert.ok(internal.LITERAL_TOKENS.every((pair) => pair[1].includes('var(--dsw-') || pair[1].includes('color-mix(')), 'every reference targets a dsw variable or color-mix')
   assert.deepEqual(internal.SUMMARY_TOKENS, [
     '--dsw-alias-bg-base', '--dsw-alias-brand-primary', '--dsw-alias-label-primary',
     '--dsw-alias-state-success-primary', '--dsw-alias-state-warn-primary'

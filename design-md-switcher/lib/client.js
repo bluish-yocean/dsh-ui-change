@@ -36,8 +36,12 @@
     { token: '--dsw-alias-menu-icon', light: ['muted-soft', 'muted', 'mute-light', 'ink-meta', 'body', 'ink'], dark: ['on-dark-soft', 'on-dark-mute', 'mute-dark'], flip: [0.58, 0.70] },
     { token: '--dsw-menu-surface-fill', mode: 'tint', light: ['surface-card', 'surface-soft', 'canvas'], dark: ['surface-dark-elevated', 'surface-dark-card', 'ink-elevated'], alpha: { light: 0.92, dark: 0.90 }, flip: [0.10, 0.16] },
     { token: '--dsw-focus-ring-color', light: ['primary'], dark: [], flip: [0.35, 0.55] },
-    { token: '--dsw-alias-tooltip-key-bg', light: ['surface-soft', 'surface-card', 'canvas'], dark: ['on-dark', 'canvas-light'], flip: [0.70, 0.90] },
-    { token: '--dsw-alias-switch-thumb', light: ['canvas', 'canvas-light'], dark: ['on-dark', 'canvas-light'], flip: [0.88, 0.96] }
+    // tooltip 键帽改为引用层（相对 tooltip 气泡底提亮），见 LITERAL_TOKENS。
+    { token: '--dsw-alias-switch-thumb', light: ['canvas', 'canvas-light'], dark: ['on-dark', 'canvas-light'], flip: [0.88, 0.96] },
+    // v0.8.3：tooltip 气泡文字是固定白色（--dsw-static-neutral-bluish-00），
+    // 气泡底必须在浅/深两套里都是深色；此前引用会在深色下变亮的
+    // button-contrast-fill，导致「白底白字」。深色表取暗面键，无暗表时翻转推导。
+    { token: '--dsw-alias-tooltip-bg', light: ['ink', 'ink-deep', 'body-strong', 'body'], dark: ['surface-dark', 'surface-dark-elevated', 'surface-dark-soft', 'ink-elevated'], flip: [0.04, 0.10] }
   ];
   /**
    * v0.7.0：剩余别名层 → 已有设计 Token 的 var()/color-mix 直通。
@@ -128,7 +132,8 @@
     // 浮层
     ['--dsw-alias-toast-bg', 'var(--dsw-alias-button-contrast-fill)'],
     ['--dsw-alias-toast-label', 'var(--dsw-alias-bg-base)'],
-    ['--dsw-alias-tooltip-bg', 'var(--dsw-alias-button-contrast-fill)'],
+    // 键帽取气泡底提亮 18%（宿主同款推导）：tooltip 的白色键帽字始终可读。
+    ['--dsw-alias-tooltip-key-bg', 'color-mix(in srgb, var(--dsw-alias-tooltip-bg), white 18%)'],
     ['--dsw-alias-turn-trigger-bg', 'var(--dsw-alias-bg-layer-2)'],
     ['--dsw-alias-turn-trigger-bg-hover', 'var(--dsw-alias-interactive-bg-hover)'],
     // 组件专属

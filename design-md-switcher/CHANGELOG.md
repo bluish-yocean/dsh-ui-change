@@ -1,5 +1,22 @@
 # Changelog — design-md-switcher
 
+## 0.8.3 (2026-10-18)
+
+修复 tooltip 白底白字（17 套配色全量检查）：
+
+- **根因**：DSH 的 tooltip 气泡文字是固定白色（`--dsw-static-neutral-bluish-00`），
+  而 `--dsw-alias-tooltip-bg` 此前直通 `var(--dsw-alias-button-contrast-fill)`；
+  该 Token 在深色方案下是亮色（on-dark），于是深色界面里出现白底白字
+  （上下文用量、会话/工作区悬停提示等全部受影响）。
+- **修复**：`--dsw-alias-tooltip-bg` 改为设计基座 Token——浅色取 ink（深底），
+  深色取 `surface-dark` 系列（无暗色表时翻转推导为 4–10% 亮度），保证
+  两套配色下气泡始终是深色；`--dsw-alias-tooltip-key-bg` 改为
+  `color-mix(in srgb, var(--dsw-alias-tooltip-bg), white 18%)`（宿主同款推导），
+  白色键帽字在任何方案下都可读。
+- 新增 17 套内置设计的 tooltip 对比度闸门（浅/深两套 luminance < 0.25）；
+  同时审计了宿主 CSS 里所有“固定白/黑字 + 主题背景”的组合，只有 tooltip 一处。
+- 测试 70 项全绿。
+
 ## 0.8.2 (2026-10-17)
 
 17 套内置设计的浅色方案修正（参考 design-md/<id>/DESIGN.md 原始稿，ID 忽略大小写）：
