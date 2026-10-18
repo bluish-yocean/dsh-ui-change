@@ -3,7 +3,7 @@
 在 DSH（DeepSeek Harness ≥ 0.2.0-rc.2）设置页切换不同公司的 `design.md` 设计规范，
 并把配色实时应用到界面主题；重启后自动恢复；支持 JSON 配色的导入/导出。
 
-> 按照DSH设计规范，在通用-通用设置-设计规范里内置了17套配色方案可供选择；也可以上传自定义配色MarkDown文件。
+> 按照DSH设计规范，在通用-通用设置-UI设计方案选择里内置了17套配色方案可供选择；也可以上传自定义配色MarkDown文件。
 
 - 解析对象：YAML frontmatter 形式的 design.md（颜色 + 组件面摘要；spacing/components
   里没有对应变量的字段解析但不应用——见下文「范围天花板」）。v0.5.0 起 `colors`
@@ -37,8 +37,8 @@
 @standard-schema/spec）已 vendor 进 `lib/vendor/`，安装不做任何依赖下载。
 
 安装后**重启 DSH**（desktop 需重启应用补丁；web 模板改动能热生效，见下文差异）。
-设置页 **General** 区会出现「设计规范（design.md）」一行（排在 appearance /
-font-size 之后）。
+设置页 **General** 区会出现「UI设计方案选择」一行（排在 appearance /
+font-size 之后），默认显示前 6 套方案，点「展开其余 11 个方案」查看全部。
 
 > 排障：若重启后没有这一行，先查 profile 的 `dsh.profile.bundles` 是否含
 > `design-md-switcher`。bundle 自带的 `insert` 补丁只对 bundles 成员生效；只在

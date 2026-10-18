@@ -1692,12 +1692,15 @@
 
   var LOCALES = {
     en: {
-      title: 'Design spec (design.md)',
+      title: 'UI design scheme',
       active: 'Active design',
       none: 'Default theme (no override)',
       originBuiltin: 'built-in',
       originImported: 'imported',
       noDesigns: 'No designs available',
+      selected: 'Selected',
+      expandMore: 'Show %s more schemes',
+      collapse: 'Collapse',
       restore: 'Restore default',
       exportJson: 'Export JSON',
       exportBackup: 'Export raw custom designs',
@@ -1724,12 +1727,15 @@
       deleteUnavailable: 'Stored custom designs JSON is corrupted — export the raw text and fix it before deleting.'
     },
     zh: {
-      title: '设计规范（design.md）',
+      title: 'UI设计方案选择',
       active: '当前设计',
       none: '默认主题（无覆盖）',
       originBuiltin: '内置',
       originImported: '导入',
       noDesigns: '暂无可用设计',
+      selected: '已选择',
+      expandMore: '展开其余 %s 个方案',
+      collapse: '收起',
       restore: '恢复默认',
       exportJson: '导出 JSON',
       exportBackup: '导出自定义设计原文',
@@ -1772,7 +1778,10 @@
     '.dmds-del[data-confirm="true"]{border-color:var(--dsw-alias-state-error-primary)}',
     '.dmds-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;border:.5px solid transparent;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:14px;line-height:22px;cursor:pointer;text-align:left;width:100%}',
     '.dmds-item:hover{background:var(--dsw-alias-interactive-bg-hover)}',
-    '.dmds-item[data-active="true"]{border-color:var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1)}',
+    // v0.8.4：选中态用品牌色画框 + 12% 品牌底 + 加粗（此前用 border-l1 + bg-layer-1，
+    // 在暗色方案里两者可能与卡片同色 → 选中框看不见，Ferrari 等复现）。
+    '.dmds-item[data-active="true"]{border-color:transparent;background:color-mix(in srgb, var(--dsw-alias-brand-primary) 12%, transparent);box-shadow:inset 0 0 0 1px var(--dsw-alias-brand-primary);font-weight:600}',
+    '.dmds-check{flex:none;color:var(--dsw-alias-brand-primary);font-weight:700}',
     '.dmds-item-name{flex:1;overflow-wrap:anywhere}',
     '.dmds-meta{color:var(--dsw-alias-label-secondary);font-size:12px}',
     '.dmds-actions{display:flex;gap:8px;flex-wrap:wrap}',
@@ -2080,6 +2089,10 @@
         var pendingState = R.useState('');
         var pending = pendingState[0];
         var setPending = pendingState[1];
+        // v0.8.4：列表折叠——默认只显示前 6 个，其余点「展开」再看（17 套太长）。
+        var expandedState = R.useState(false);
+        var expanded = expandedState[0];
+        var setExpanded = expandedState[1];
         R.useEffect(function () {
           return scope.subscribe(function () { setTick(function (n) { return n + 1; }); });
         }, []);
@@ -2151,12 +2164,14 @@
           h('span', null, t('active') + ': ' + (st.paletteName || t('none'))),
           swatches));
 
-        var list = view.items.map(function (item) {
+        var visibleItems = expanded ? view.items : view.items.slice(0, 6);
+        var list = visibleItems.map(function (item) {
           var select = h('button', {
             type: 'button', className: 'dmds-item', 'data-active': item.id === view.activeId,
             onClick: function () { setMsg(null); setPending(''); api.activate(item.id); refresh(); }
           },
           h('span', { className: 'dmds-item-name' }, item.name),
+          item.id === view.activeId ? h('span', { className: 'dmds-check', 'aria-label': t('selected'), title: t('selected') }, '✓') : null,
           h('span', { className: 'dmds-meta' }, item.version + ' · ' + t(item.origin === 'builtin' ? 'originBuiltin' : 'originImported')));
           if (item.origin !== 'imported') {
             return h('div', { key: item.id, className: 'dmds-item-row' }, select);
@@ -2177,6 +2192,13 @@
         });
         children.push(h('div', { className: 'dmds-list' },
           list.length > 0 ? list : h('span', { className: 'dmds-meta' }, t('noDesigns'))));
+        // 折叠开关：默认只露出前 6 个，其余 11 个点开再看。
+        if (view.items.length > 6) {
+          children.push(h('button', {
+            type: 'button', className: 'dmds-btn dmds-toggle', 'data-expanded': expanded,
+            onClick: function () { setExpanded(!expanded); }
+          }, expanded ? t('collapse') : fmt(t('expandMore'), view.items.length - 6)));
+        }
 
         children.push(h('div', { className: 'dmds-actions' },
           h('button', { type: 'button', className: 'dmds-btn', onClick: function () { setMsg(null); api.restoreDefault(); refresh(); } }, t('restore')),

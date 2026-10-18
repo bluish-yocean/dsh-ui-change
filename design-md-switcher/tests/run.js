@@ -592,7 +592,7 @@ test('host: lib/index.js exports real-Schema Config (vendored) + empty apply', (
 test('manifest: package.json matches IC-2 verbatim', async () => {
   const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
   assert.equal(pkg.name, 'design-md-switcher')
-  assert.equal(pkg.version, '0.8.3')
+  assert.equal(pkg.version, '0.8.4')
   assert.equal(pkg.type, 'module')
   assert.equal(pkg.main, 'lib/index.js')
   assert.equal(pkg.exports['.'], './lib/index.js')
@@ -629,6 +629,11 @@ test('client source: lazy-CJS factory shape + slot row + forbidden-API gates', a
   assert.ok(src.includes('window.__ModuleLoader__.load'), 'registers via window.__ModuleLoader__.load (asar:292647)')
   assert.ok(src.includes("id: SOURCE"), 'factory id = bare package name')
   assert.ok(src.includes("'settings.general.item'") && src.includes('order: 12'), 'settings row slot (E.1)')
+  // v0.8.4：选中态用品牌色框（不依赖可能与卡片同色的 border-l1/bg-layer-1）；
+  // 列表默认折叠到前 6 个；行标题改为「UI设计方案选择」。
+  assert.ok(src.includes('.dmds-item[data-active="true"]{border-color:transparent;background:color-mix(in srgb, var(--dsw-alias-brand-primary) 12%, transparent)'), 'selected item frame uses brand color')
+  assert.ok(src.includes('view.items.slice(0, 6)') && src.includes('t(\'expandMore\')'), 'design list collapses to the first 6 entries')
+  assert.ok(src.includes("title: 'UI设计方案选择'"), 'row title is UI设计方案选择')
   assert.ok(src.includes("overrideTokens(SOURCE"), 'applies through ctx.theme.overrideTokens (E.2)')
   assert.ok(!/^import\s/m.test(src) && !/^export\s/m.test(src), 'classic-script safe: no ESM syntax')
   assert.ok(!src.includes('setTheme(') && !src.includes('setFontSize('), 'B.4: never touches setTheme/setFontSize')
