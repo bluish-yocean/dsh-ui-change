@@ -58,8 +58,11 @@
     ['--dsw-alias-bg-multi-select', 'var(--dsw-alias-bg-layer-2)'],
     // 描边
     ['--dsw-alias-border-l2-darkmode-thin', 'var(--dsw-alias-border-l2)'],
-    ['--dsw-alias-border-l3', 'var(--dsw-alias-border-l1)'],
-    ['--dsw-alias-border-l4', 'var(--dsw-alias-border-l1)'],
+    // v0.8.5：侧栏/工作区分割线与菜单外框用「文字色 28%/36% 叠色」，而不是直通 border-l1：
+    // 某些设计的 l1 与面板同色（PlayStation 浅色 #f3f3f3、BMW 深色 #1a2129+灰线），
+    // 分割线会完全消失；文字色叠色在浅/深两套下都能保证对比。
+    ['--dsw-alias-border-l3', 'color-mix(in srgb, var(--dsw-alias-label-primary) 28%, transparent)'],
+    ['--dsw-alias-border-l4', 'color-mix(in srgb, var(--dsw-alias-label-primary) 36%, transparent)'],
     // 品牌
     ['--dsw-alias-brand-primary-invert', 'var(--dsw-alias-label-primary)'],
     ['--dsw-alias-brand-text', 'var(--dsw-alias-label-primary)'],

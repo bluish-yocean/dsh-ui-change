@@ -228,6 +228,33 @@ test('mapper: v0.8.3 tooltip bubble stays dark in all 17 palettes (fixed white l
   }
 })
 
+test('mapper: v0.8.5 sidebar divider (border-l3/l4) keeps contrast in every palette', () => {
+  const l3 = 'color-mix(in srgb, var(--dsw-alias-label-primary) 28%, transparent)'
+  const l4 = 'color-mix(in srgb, var(--dsw-alias-label-primary) 36%, transparent)'
+  const over = (c, bg) => {
+    const a = c.a ?? 1
+    return { r: c.r * a + bg.r * (1 - a), g: c.g * a + bg.g * (1 - a), b: c.b * a + bg.b * (1 - a), a: 1 }
+  }
+  const ratio = (a, b) => {
+    const la = internal.luminance(a), lb = internal.luminance(b)
+    const hi = Math.max(la, lb), lo = Math.min(la, lb)
+    return (hi + 0.05) / (lo + 0.05)
+  }
+  for (const d of internal.BUILTIN_DESIGNS) {
+    const { tokens } = internal.mapDesignToTokens(d)
+    assert.deepEqual(tokens['--dsw-alias-border-l3'], { light: l3, dark: l3 }, d.id + ': l3 divider')
+    assert.deepEqual(tokens['--dsw-alias-border-l4'], { light: l4, dark: l4 }, d.id + ': l4 divider')
+    for (const scheme of ['light', 'dark']) {
+      const text = internal.parseColor(tokens['--dsw-alias-label-primary'][scheme])
+      for (const surface of ['--dsw-specific-sidebar-fill', '--dsw-alias-bg-base']) {
+        const bg = internal.parseColor(tokens[surface][scheme])
+        const cr = ratio(over(Object.assign({}, text, { a: 0.28 }), bg), bg)
+        assert.ok(cr >= 1.5, `${d.id}.${scheme} ${surface}: divider contrast ${cr.toFixed(2)} < 1.5`)
+      }
+    }
+  }
+})
+
 test('mapper: sap skips 6 tokens whose light chains are empty (B.1 omission)', () => {
   const doc = internal.parseDesignDoc(fixtures.sap)
   const { tokens, skipped } = internal.mapDesignToTokens(doc)
@@ -592,7 +619,7 @@ test('host: lib/index.js exports real-Schema Config (vendored) + empty apply', (
 test('manifest: package.json matches IC-2 verbatim', async () => {
   const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
   assert.equal(pkg.name, 'design-md-switcher')
-  assert.equal(pkg.version, '0.8.4')
+  assert.equal(pkg.version, '0.8.5')
   assert.equal(pkg.type, 'module')
   assert.equal(pkg.main, 'lib/index.js')
   assert.equal(pkg.exports['.'], './lib/index.js')
