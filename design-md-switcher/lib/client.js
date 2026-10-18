@@ -619,6 +619,18 @@
   /* ══════════════════════ 3b. 组件面 hover（新会话按钮，v0.3.1） ══════════════════════ */
 
   /**
+   * Windows 标题栏布局把侧栏的 border-right 关掉了（layout:
+   * `[data-windows-titlebar] .sidebarCol{border-right:none}`），侧栏与主区只剩
+   * 「侧栏底色 vs bg-base」的色差；设计里两者同色时（BMW 深色、Webflow 浅色等）
+   * 分割完全消失。激活设计期间给 centerCol 补一条左描边（与 macOS 布局的
+   * border-left 对齐），颜色用 border-l3（文字色叠色，17 套两套配色都有对比）。
+   * 类名是 CSS Module 哈希（`BynINW_centerCol`），按本地名子串定位；宿主改本地名
+   * 时规则空匹配（分隔消失，不报错），换版本复核一次。
+   */
+  var LAYOUT_CSS = '[data-windows-titlebar] [class*="_centerCol"]{border-left:.5px solid var(--dsw-alias-border-l3)}'
+    + '[data-windows-titlebar] [data-sidebar-collapsed] [class*="_centerCol"]{border-left:none}';
+
+  /**
    * 「新会话」按钮的选择器：宿主类名是 CSS Module 哈希（`_2H3hWW_newSession`），
    * 哈希前缀随构建变、本地名 `newSession` 保留；`aria-label` 随界面语言变，且顶部
    * 品牌按钮共用同一标签，所以按类名子串定位。宿主升级后若本地名改了，这条选择器
@@ -1934,7 +1946,7 @@
           disposer = next;
           // 组件面只在内置 design.md 上有来源；导入的 PaletteDoc 只有颜色 → 清空。
           // hover 段同理：只在内置设计带 components 段时追加到同一 <style>。
-          applyComponentCss(componentCss(buildComponentOverrides(resolvedDoc)) + buildHoverCss(resolvedDoc));
+          applyComponentCss(componentCss(buildComponentOverrides(resolvedDoc)) + buildHoverCss(resolvedDoc) + LAYOUT_CSS);
           status.tokens = tokens; status.skipped = skipped; status.palette = palette; status.paletteName = palette.name;
           status.applyError = null;
         } catch (err) {

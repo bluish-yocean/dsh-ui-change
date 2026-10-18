@@ -1,5 +1,21 @@
 # Changelog — design-md-switcher
 
+## 0.8.6 (2026-10-18)
+
+修复 Windows 标题栏布局下分割线仍然不可见：
+
+- **0.8.5 为什么不够**：Windows 标题栏布局把侧栏的 `border-right` 关掉了
+  （layout：`[data-windows-titlebar] .sidebarCol{border-right:none}`），侧栏与主区
+  只靠「侧栏底色 vs `bg-base`」区分；BMW 深色两者都是 `#1a2129`，改 border-l3
+  不会有任何线被画出来。
+- **修复**：激活设计期间在组件面样式层追加
+  `[data-windows-titlebar] [class*="_centerCol"]{border-left:.5px solid var(--dsw-alias-border-l3)}`
+  （与 macOS 布局的 centerCol 左描边对齐；侧栏折叠时 `[data-sidebar-collapsed]`
+  自动关闭）。描边色仍用 0.8.5 的 border-l3 文字色叠色，17 套两套配色都有对比。
+- 类名按 CSS Module 本地名子串定位（`_centerCol`，同 `_newSession` 先例）；宿主改
+  本地名时规则空匹配，不报错。
+- 测试 71 项全绿（组件层闸门新增该规则断言）。
+
 ## 0.8.5 (2026-10-18)
 
 修复侧栏/工作区分割线在部分方案下消失：

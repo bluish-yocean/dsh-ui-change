@@ -619,7 +619,7 @@ test('host: lib/index.js exports real-Schema Config (vendored) + empty apply', (
 test('manifest: package.json matches IC-2 verbatim', async () => {
   const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
   assert.equal(pkg.name, 'design-md-switcher')
-  assert.equal(pkg.version, '0.8.5')
+  assert.equal(pkg.version, '0.8.6')
   assert.equal(pkg.type, 'module')
   assert.equal(pkg.main, 'lib/index.js')
   assert.equal(pkg.exports['.'], './lib/index.js')
@@ -757,6 +757,7 @@ test('client apply: component layer written to its own <style>, cleared on resto
     assert.ok(tag.textContent.includes('--dsw-radius-md:8px'), 'radius follows design.md')
     assert.ok(tag.textContent.includes('--dsh-content-font-size:16px !important'), 'content size wins over the presenter inline value')
     assert.ok(tag.textContent.includes('--dsw-font-family:StyreneB, Inter, sans-serif'))
+    assert.ok(tag.textContent.includes('[data-windows-titlebar] [class*="_centerCol"]'), 'Windows titlebar divider rule rides the component layer')
   } finally {
     delete globalThis.document
   }
