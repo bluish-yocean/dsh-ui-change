@@ -219,6 +219,13 @@
     return 0.2126 * lin(rgb.r) + 0.7152 * lin(rgb.g) + 0.0722 * lin(rgb.b);
   }
 
+  /** WCAG 对比度（v0.8.7 描边最小对比度兜底用）。 */
+  function contrastRatio(a, b) {
+    var la = luminance(a), lb = luminance(b);
+    var hi = Math.max(la, lb), lo = Math.min(la, lb);
+    return (hi + 0.05) / (lo + 0.05);
+  }
+
   function rgbToHsl(rgb) {
     var r = rgb.r / 255, g = rgb.g / 255, b = rgb.b / 255;
     var max = Math.max(r, g, b), min = Math.min(r, g, b);
@@ -502,6 +509,35 @@
     // 别名引用层：值本身就是 var()/color-mix，light/dark 同一表达式，随基座 Token 解析。
     LITERAL_TOKENS.forEach(function (pair) {
       tokens[pair[0]] = { light: pair[1], dark: pair[1] };
+    });
+    // v0.8.7：描边最小对比度——l1/l2 若与面板（bg-base / bg-layer-1 / bg-layer-2）
+    // 近乎同色（如 Ferrari 深色卡片 #303030 配 #303030 描边），换成文字色叠色线，
+    // 保证设置卡片、输入框、行分隔等所有线框在 17 套方案里都看得见。
+    [['--dsw-alias-border-l1', 18], ['--dsw-alias-border-l2', 12]].forEach(function (pair) {
+      var modes = tokens[pair[0]];
+      if (!modes) return;
+      ['light', 'dark'].forEach(function (scheme) {
+        var line = parseColor(modes[scheme]);
+        if (!line) return;
+        var worst = null;
+        ['--dsw-alias-bg-base', '--dsw-alias-bg-layer-1', '--dsw-alias-bg-layer-2'].forEach(function (surfaceName) {
+          var surfaceModes = tokens[surfaceName];
+          var surface = surfaceModes ? parseColor(surfaceModes[scheme]) : null;
+          if (!surface) return;
+          var a = line.a == null ? 1 : line.a;
+          var blended = {
+            r: line.r * a + surface.r * (1 - a),
+            g: line.g * a + surface.g * (1 - a),
+            b: line.b * a + surface.b * (1 - a),
+            a: 1
+          };
+          var ratio = contrastRatio(blended, surface);
+          if (worst === null || ratio < worst) worst = ratio;
+        });
+        if (worst !== null && worst < 1.2 && tokens['--dsw-alias-label-primary']) {
+          modes[scheme] = 'color-mix(in srgb, var(--dsw-alias-label-primary) ' + pair[1] + '%, transparent)';
+        }
+      });
     });
     return { tokens: tokens, skipped: skipped };
   }

@@ -255,6 +255,39 @@ test('mapper: v0.8.5 sidebar divider (border-l3/l4) keeps contrast in every pale
   }
 })
 
+test('mapper: v0.8.7 border-l1/l2 keep contrast against panel surfaces in every palette', () => {
+  const expr = (a) => `color-mix(in srgb, var(--dsw-alias-label-primary) ${a}%, transparent)`
+  const over = (c, bg) => {
+    const a = c.a ?? 1
+    return { r: c.r * a + bg.r * (1 - a), g: c.g * a + bg.g * (1 - a), b: c.b * a + bg.b * (1 - a), a: 1 }
+  }
+  const ratio = (a, b) => {
+    const la = internal.luminance(a), lb = internal.luminance(b)
+    const hi = Math.max(la, lb), lo = Math.min(la, lb)
+    return (hi + 0.05) / (lo + 0.05)
+  }
+  for (const d of internal.BUILTIN_DESIGNS) {
+    const { tokens } = internal.mapDesignToTokens(d)
+    for (const [name, alpha] of [['--dsw-alias-border-l1', 18], ['--dsw-alias-border-l2', 12]]) {
+      const modes = tokens[name]
+      if (!modes) continue
+      for (const scheme of ['light', 'dark']) {
+        const line = modes[scheme] === expr(alpha)
+          ? Object.assign({}, internal.parseColor(tokens['--dsw-alias-label-primary'][scheme]), { a: alpha / 100 })
+          : internal.parseColor(modes[scheme])
+        assert.ok(line, `${d.id}.${scheme} ${name}: parseable`)
+        for (const surfaceName of ['--dsw-alias-bg-base', '--dsw-alias-bg-layer-1', '--dsw-alias-bg-layer-2']) {
+          const surfaceModes = tokens[surfaceName]
+          if (!surfaceModes) continue
+          const surface = internal.parseColor(surfaceModes[scheme])
+          const cr = ratio(over(line, surface), surface)
+          assert.ok(cr >= 1.2, `${d.id}.${scheme} ${name} vs ${surfaceName}: ${cr.toFixed(2)} < 1.2`)
+        }
+      }
+    }
+  }
+})
+
 test('mapper: sap skips 6 tokens whose light chains are empty (B.1 omission)', () => {
   const doc = internal.parseDesignDoc(fixtures.sap)
   const { tokens, skipped } = internal.mapDesignToTokens(doc)
@@ -619,7 +652,7 @@ test('host: lib/index.js exports real-Schema Config (vendored) + empty apply', (
 test('manifest: package.json matches IC-2 verbatim', async () => {
   const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
   assert.equal(pkg.name, 'design-md-switcher')
-  assert.equal(pkg.version, '0.8.6')
+  assert.equal(pkg.version, '0.8.7')
   assert.equal(pkg.type, 'module')
   assert.equal(pkg.main, 'lib/index.js')
   assert.equal(pkg.exports['.'], './lib/index.js')
