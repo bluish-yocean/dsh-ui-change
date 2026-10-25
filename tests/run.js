@@ -673,9 +673,9 @@ for (const [stem, text] of Object.entries(builtinFixtures)) {
   })
 }
 
-/* ── 状态色闸门（v0.8.10）：17 套内置不缺状态色；映射器收上游语义别名 ── */
+/* ── 状态色闸门（v0.9.0）：17 套内置不缺状态色；映射器收上游语义别名 ── */
 
-test('builtins: every builtin derives all state tokens (v0.8.10)', () => {
+test('builtins: every builtin derives all state tokens (v0.9.0)', () => {
   const stateTokens = [
     '--dsw-alias-state-success-primary',
     '--dsw-alias-state-warn-primary',
@@ -723,7 +723,7 @@ test('mapper: upstream semantic aliases feed state tokens', () => {
   }
 })
 
-/* ── 状态色相闸门（v0.8.10）：状态色的色相必须承载语义 ── */
+/* ── 状态色相闸门（v0.9.0）：状态色的色相必须承载语义 ── */
 
 // 只认 #rrggbb：hsl()/rgba() 是 flip 推导或 tint 结果，色相不是设计给的，跳过不误判。
 const hexRgb = (value) => {
@@ -747,7 +747,7 @@ const rgbHue = ([r, g, b]) => {
 // 设计选择，色相距间不归这条闸门管（success/error 的色相区间才是语义约束）。
 const WARN_ERROR_MIN_DISTANCE = 40
 
-test('builtins: state token hues stay semantic (v0.8.10)', () => {
+test('builtins: state token hues stay semantic (v0.9.0)', () => {
   // success 必须偏绿、error 必须偏红；warn 的红/金都是合法警示色，只要求与 error 有区分度。
   for (const d of internal.BUILTIN_DESIGNS) {
     const { tokens } = internal.mapDesignToTokens(d)
@@ -770,13 +770,13 @@ test('builtins: state token hues stay semantic (v0.8.10)', () => {
   }
 })
 
-/* ── 徽章可见性闸门（v0.8.10）：同一元素上背景与文字不得取到同一个 Token 值 ── */
+/* ── 徽章可见性闸门（v0.9.0）：同一元素上背景与文字不得取到同一个 Token 值 ── */
 
 // 宿主 dsh-client-ui-user-questions 的提问卡徽章（.wnLwla_badge）把这两个 Token 用在同一
 // 元素的两条不同声明上：`sidebar-nav-item-active-accent` 当背景、`button-info-fill` 当文字。
 // 两者一旦解析成同一个值（都取 brand-primary 那版就是这样），字与底同色、徽章只剩一块色块。
 // 这条闸门只认「不等」：具体取值归设计与调色板管，同值才是必须变红的回归。
-test('badge: nav-item-active-accent never equals button-info-fill (v0.8.10)', () => {
+test('badge: nav-item-active-accent never equals button-info-fill (v0.9.0)', () => {
   const BG = '--dsw-specific-sidebar-nav-item-active-accent'
   const FG = '--dsw-alias-button-info-fill'
   for (const d of internal.BUILTIN_DESIGNS) {
@@ -819,7 +819,7 @@ test('host: lib/index.js exports real-Schema Config (vendored) + empty apply', (
 test('manifest: package.json matches IC-2 verbatim', async () => {
   const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
   assert.equal(pkg.name, 'design-md-switcher')
-  assert.equal(pkg.version, '0.8.10')
+  assert.equal(pkg.version, '0.9.0')
   assert.equal(pkg.type, 'module')
   assert.equal(pkg.main, 'lib/index.js')
   assert.equal(pkg.exports['.'], './lib/index.js')

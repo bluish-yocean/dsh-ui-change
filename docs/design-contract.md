@@ -90,11 +90,11 @@
 - 暗色边框：`hairline-dark, ash-dark`；暗色正文：`on-dark, canvas-light`；暗色次级文字：`on-dark-mute, on-dark-soft, mute-dark`
 - 亮色底：`canvas, canvas-light`；亮色卡片：`surface-card, surface-soft, chrome`；亮色边框：`hairline, hairline-soft`
 - 亮色正文：`ink, body-strong, body`；亮色次级：`muted, muted-soft, mute-light, ash-light`
-- 状态：success `success`；warn `warning`；error `error|commerce|warning`（PlayStation 无 `error`，`warning:#c81b3a` 实为红色，故 error 链吸收它）；v0.8.10 起再收上游语义别名，见下条
+- 状态：success `success`；warn `warning`；error `error|commerce|warning`（PlayStation 无 `error`，`warning:#c81b3a` 实为红色，故 error 链吸收它）；v0.9.0 起再收上游语义别名，见下条
 - v0.2.0 新增：按钮 hover `primary-pressed|primary-active|primary-deep|primary`；三级文字 `muted-soft|mute-light|ink-meta|ink-nav|muted|body`；高对比填充 `ink|ink-deep|ink-elevated|body-strong`（dark：`on-dark|canvas-light|canvas`）；悬浮底取 `ink`/`on-dark` 后压透明度（不做推导原语之外的混合）。
 - v0.4.0 新增：按钮底色 `canvas|canvas-light|surface-card|surface-soft`（dark：`surface-dark-elevated|surface-dark-card|ink-elevated`，链空 flip 0.10–0.16）；「新会话」hover 底色取 `ink|body-strong|ink-deep`（dark：`on-dark|on-dark-mute|canvas-light`）压 6%/8%（与悬浮底同一 tint 语义）。
 - v0.6.0 新增：菜单图标 `muted-soft|muted|mute-light|ink-meta|body|ink`（dark：`on-dark-soft|on-dark-mute|mute-dark`）；菜单材质 `surface-card|surface-soft|canvas` 压 92%（dark：`surface-dark-elevated|…` 压 90%）；焦点环 `primary`（dark：同品牌色）；tooltip 键帽 `surface-soft|surface-card|canvas`（dark：`on-dark|canvas-light`）；开关滑块 `canvas|canvas-light`（dark：`on-dark|canvas-light`）。
-- v0.8.10 新增：状态语义别名 success `semantic-success|success-accent|positive`；warn `semantic-warning|accent-warning|attention`；error `semantic-error|critical|accent-danger|negative`（dark 链同这三组，浅底 `*-bg`/`*-surface` 键不入暗色链）。
+- v0.9.0 新增：状态语义别名 success `semantic-success|success-accent|positive`；warn `semantic-warning|accent-warning|attention`；error `semantic-error|critical|accent-danger|negative`（dark 链同这三组，浅底 `*-bg`/`*-surface` 键不入暗色链）。
 
 ### B.3 逐 Token 映射表
 
@@ -132,7 +132,7 @@
 
 > 为什么加这 5 个（v0.6.0）：菜单图标、菜单材质、焦点环、tooltip 键帽、开关滑块在宿主里各自绑在 `--dsw-static-*` 或常量上（菜单 `#f8f9fa94`、图标 neutral-800、焦点环 `#4176E6/#7AAAFF`、键帽 = tooltip 底 +18% 白、滑块 neutral-00），只覆盖前 20 个时这些控件仍不跟设计。新增后：菜单图标按次级文字色、菜单材质按卡面容色的 92%/90% 叠色、焦点环用品牌色、键帽/滑块按浅色面，且都是纯颜色（不碰几何）。
 
-> v0.8.10：两件事。① 状态色三行补上游语义别名（`semantic-*`、`success-accent`、`accent-warning`、`accent-danger`、`critical`、`attention`、`positive`、`negative`），前几位顺序不动；仓库 `design-md/` 的第三方 DESIGN.md 多用这套键名，旧链导入即跳过。② 把 `accent-teal` / `accent-amber` 从 success / warn 链移除：这两个键在各方案里是「第二品牌色」（Airbnb 紫 274°、HP 青灰 195°、SAP 天蓝 206°、Webflow 品红 313°），色相不承载成功 / 警告语义，留着会让没有显式状态键的方案借到错色相。配套：Apple / Cursor / Playstation / SAP / Zapier 与 Airbnb / HP / Oracle / SAP / Webflow 两批内置方案按各自调色板补齐状态色（无上游实测值的在 CHANGELOG 标注）；新增色相闸门——success 落 [85,175]、error 落 [340,360]∪[0,30]、warn 不得与 error 同色。
+> v0.9.0：两件事。① 状态色三行补上游语义别名（`semantic-*`、`success-accent`、`accent-warning`、`accent-danger`、`critical`、`attention`、`positive`、`negative`），前几位顺序不动；仓库 `design-md/` 的第三方 DESIGN.md 多用这套键名，旧链导入即跳过。② 把 `accent-teal` / `accent-amber` 从 success / warn 链移除：这两个键在各方案里是「第二品牌色」（Airbnb 紫 274°、HP 青灰 195°、SAP 天蓝 206°、Webflow 品红 313°），色相不承载成功 / 警告语义，留着会让没有显式状态键的方案借到错色相。配套：Apple / Cursor / Playstation / SAP / Zapier 与 Airbnb / HP / Oracle / SAP / Webflow 两批内置方案按各自调色板补齐状态色（无上游实测值的在 CHANGELOG 标注）；新增色相闸门——success 落 [85,175]、error 落 [340,360]∪[0,30]、warn 不得与 error 同色。
 
 ### B.3b 别名引用层（v0.7.0，81 个）
 
@@ -156,7 +156,7 @@
 | diff | `code-diff-*`、`file-diff-*` | `color-mix(state-success｜error …)` / 基座状态色 |
 | 组件专属 | `specific-bubble*`、`input-major`、`login-input`、`menu`、`selector`、`sidebar-nav-item-*`、`tip` | `bg-layer-1/2`、`brand-primary`、`interactive-bg-hover`、`menu-surface-fill` |
 
-- **`sidebar-nav-item-active-accent` 取淡色、不取饱和强调色**（v0.8.10）：它在宿主里是「强调色的最浅阶」
+- **`sidebar-nav-item-active-accent` 取淡色、不取饱和强调色**（v0.9.0）：它在宿主里是「强调色的最浅阶」
   （浅色 `#e4edfd` 淡蓝底、深色深灰底），提问卡「推荐」徽章拿它当**背景**、拿
   `--dsw-alias-button-info-fill` 当**文字**。若映射成饱和 `brand-primary`，背景与文字同值、文字隐形，
   徽章只剩一块色块。故取 `color-mix(in srgb, brand-primary 14%, transparent)`：淡底 + 饱和品牌字，

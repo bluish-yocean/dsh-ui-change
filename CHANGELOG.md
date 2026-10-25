@@ -1,6 +1,6 @@
 # Changelog — design-md-switcher
 
-## 0.8.10 (2026-10-25)
+## 0.9.0 (2026-10-25)
 
 9 套内置方案补齐状态色 + 状态色候选链收上游语义别名 + 移除第二品牌色兜底 + 状态色相闸门 + 徽章可见性修复：
 
@@ -31,9 +31,11 @@
   `semantic-error|critical|accent-danger|negative`（dark 链同这三组）。仓库 `design-md/`
   的第三方 DESIGN.md 多用这套键名，此前导入即整键跳过。既有方案命中的位置在前几位，
   顺序未动，取色不漂移。
-- **状态链移除第二品牌色兜底**：`accent-teal` / `accent-amber` 从 success / warn 的浅色链删除
+- **状态链移除第二品牌色兜底（行为变化）**：`accent-teal` / `accent-amber` 从 success / warn 的浅色链删除
   （dark 链本来没有这两个键，error 链不动）。这两个键是各方案的「第二品牌色」，色相与
   成功 / 警告语义无关，留着会让后续新增的方案继续借到紫 / 蓝 / 品红。
+  影响面：只给这两个键、不给 success/warning 的第三方 design.md，状态 Token 现在**整键省略**、
+  回落 DSH 默认状态色，不再借到错色相——这是 0.9.0 相对 0.8.x 唯一的观感级破坏性变更。
 - **测试闸门**：新增「17 套内置 `skipped` 全空 + 三个状态 Token 均有非空 light/dark」、
   「`semantic-*` 别名喂进状态 Token」与「状态色相必须语义正确」（success 落 [85,175]、
   error 落 [340,360]∪[0,30]、warn 不得与 error 同色；`hsl()`/`rgba()` 值跳过不误判）三条用例；

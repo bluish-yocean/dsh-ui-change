@@ -19,7 +19,7 @@ colors:
   primary-active: "#006acc"
   success: "#00d722"
   error: "#ee1d36"
-  # v0.8.10：补显式 warning。此前缺 warning，状态链接到了 accent-amber(#ed52cb 品红)，
+  # v0.9.0：补显式 warning。此前缺 warning，状态链接到了 accent-amber(#ed52cb 品红)，
   # 色相与警告语义无关。
   warning: "#b45309"
   hairline-soft: "rgba(8, 8, 8, 0.08)"

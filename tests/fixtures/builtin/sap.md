@@ -24,7 +24,7 @@ colors:
   muted-soft: "#354a5f"
   primary-active: "#0057d2"
   primary-disabled: "#475e75"
-  # v0.8.10：状态色取 Fiori 语义色（此前缺 success/warning/error → 状态链整键跳过，
+  # v0.9.0：状态色取 Fiori 语义色（此前缺 success/warning/error → 状态链整键跳过，
   # 或借到 accent-teal #6bc0ff 的蓝色相）
   success: "#256f3a"
   warning: "#e9730c"

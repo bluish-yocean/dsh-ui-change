@@ -21,7 +21,7 @@ colors:
   error: "#cf2d56"
   success: "#1f8a65"
   primary-disabled: "#e6e5e0"
-  # v0.8.10：warn 取上游 timeline-done 实测色（此前缺 warning → state-warn 整键跳过）
+  # v0.9.0：warn 取上游 timeline-done 实测色（此前缺 warning → state-warn 整键跳过）
   warning: "#c08532"
 typography:
   body:

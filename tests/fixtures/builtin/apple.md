@@ -18,7 +18,7 @@ colors:
   surface-card: "#fafafc"
   primary-active: "#0066cc"
   primary-disabled: "#e0e0e0"
-  # v0.8.10：状态色取 Apple HIG 系统色（此前缺这三键 → 三个 state Token 整键跳过）
+  # v0.9.0：状态色取 Apple HIG 系统色（此前缺这三键 → 三个 state Token 整键跳过）
   success: "#34c759"
   warning: "#ff9500"
   error: "#ff3b30"

@@ -27,7 +27,7 @@ colors:
   muted: "rgba(0,0,0,0.6)"
   muted-soft: "rgba(0,0,0,0.6)"
   primary-disabled: "#f3f3f3"
-  # v0.8.10：success 按 PlayStation 调色板补绿（此前缺 success → state-success 整键跳过）
+  # v0.9.0：success 按 PlayStation 调色板补绿（此前缺 success → state-success 整键跳过）
   success: "#1a7f4b"
   dark:
     mute-dark: "rgba(229,229,229,0.55)"

@@ -21,7 +21,7 @@ colors:
   error: "#c13515"
   accent-teal: "#460479"
   accent-amber: "#92174d"
-  # v0.8.10：补显式状态色。此前缺 success/warning，状态链接到了
+  # v0.9.0：补显式状态色。此前缺 success/warning，状态链接到了
   # accent-teal(#460479 紫)/accent-amber(#92174d 洋红)，色相与语义无关。
   success: "#008a05"
   warning: "#b26a00"

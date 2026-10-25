@@ -25,7 +25,7 @@ colors:
   surface-card: "#f7f7f7"
   body: "#636363"
   muted-soft: "#636363"
-  # v0.8.10：补显式状态色。此前缺 success/warning，状态链接到了
+  # v0.9.0：补显式状态色。此前缺 success/warning，状态链接到了
   # accent-teal(#356373 青灰)/accent-amber(#ff5050 红)，色相与语义无关。
   success: "#0e8a3e"
   warning: "#a85b00"
