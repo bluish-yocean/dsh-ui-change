@@ -125,7 +125,7 @@ TOKEN_TABLE 第 14 行 dark 数组末位的 `'ink'` 删去即可（tests/run.js 
 
 ## 4. 测试
 
-命令：在 `design-md-switcher/` 下 `node tests/run.js`（Node v24.19.0 实跑通过：
+命令：在仓库根 `node tests/run.js`（Node v24.19.0 实跑通过：
 38 passed, 0 failed, 38 total）。覆盖：解析器正常/负例/引用/重复键/块标量/未引号
 标量；映射器 14 Token 形状、契约 B.3 四个心算抽验、flip 区间两端、整键省略、
 直通例外、颜色原语；PaletteDoc 校验顺序/64KB/坏 JSON 容错/uniqueId；内置一致性

@@ -1,6 +1,6 @@
 {
   "name": "design-md-switcher",
-  "version": "0.8.8",
+  "version": "0.8.9",
   "description": "在「通用 → 通用设置 → UI设计方案选择」切换 17 套内置配色方案（按 DSH 设计规范整理），也支持导入/导出自定义配色 Markdown 文件。",
   "type": "module",
   "main": "lib/index.js",
@@ -12,12 +12,12 @@
   "files": [
     "lib",
     "cordis.patch.yml",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/bluish-yocean/dsh-ui-change.git",
-    "directory": "design-md-switcher"
+    "url": "https://github.com/bluish-yocean/dsh-ui-change.git"
   },
   "homepage": "https://github.com/bluish-yocean/dsh-ui-change#readme",
   "author": "bluish-yocean",

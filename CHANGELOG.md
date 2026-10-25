@@ -1,5 +1,26 @@
 # Changelog — design-md-switcher
 
+## 0.8.9 (2026-10-25)
+
+github spec 安装修复：包根迁到仓库根 + vendor 纳入 git。
+
+- **包根迁到仓库根**：`package.json`、`lib/`、`tests/`、`cordis.patch.yml`、
+  `CHANGELOG.md` 从 `design-md-switcher/` 子目录上移到仓库根。此前仓库根没有
+  `package.json`，`dsh plugin --profile desktop add github:bluish-yocean/dsh-ui-change`
+  取不到包清单，装不上；现在只有一份 `package.json`，是唯一版本真源
+  （`repository.directory` 随之删除）。
+- **`lib/vendor` 纳入 git**：此前 `.gitignore` 的 `node_modules/` 规则把
+  `lib/vendor/node_modules/` 一并吞掉，clone 后 vendor 缺失。规则收窄为
+  `/node_modules/`（只锚定仓库根，不用 `!` 反选），schemastery 3.18.4 /
+  cosmokit / @standard-schema/spec 的 vendor 树随之入库，仍零依赖下载、
+  无 postinstall / prepare。
+- **修复 Config 降级**：vendor 缺失时 `lib/index.js` 的 schemastery 静态导入失败，
+  Host 半侧 Config 降级为纯形状对象，宿主拒建设置命名空间并抛
+  `Cannot read properties of undefined (reading 'validate')`。vendor 入库后走真实
+  Schema，Host 断言恢复通过。
+- **打包白名单补 `CHANGELOG.md`**：`files` 增加该文件，包内可见变更记录。
+- 测试 73 项全绿（`node tests/run.js`，零依赖）。
+
 ## 0.8.8 (2026-10-18)
 
 侧栏与主工作区底色区分 + SAP 深色收敛：

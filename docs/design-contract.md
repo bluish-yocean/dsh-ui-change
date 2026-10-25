@@ -187,7 +187,7 @@
 ### C.1 包结构
 
 ```text
-design-md-switcher/
+# 仓库根即插件包根
 ├── package.json        # dsh.bundle.patch + dsh.client + exports + engines/peers（见 Interface Contracts）
 ├── cordis.patch.yml    # - insert: [{ id: 'design-md-switcher', name: 'design-md-switcher' }]
 ├── lib/index.js        # Host 半侧：导出 Config schema（volatile 字段）；apply 为空体

@@ -24,30 +24,49 @@
 - DSH（DeepSeek Harness）**≥ 0.2.0-rc.2**，桌面版或 Web 版均可；
 - 插件以「组合包（bundle）」形式安装到当前 profile（默认 `desktop`）。
 
-### 方式 A：从本仓库（推荐开发/本地）
+### 方式 A：从 GitHub 安装（推荐）
+
+```bash
+dsh plugin --profile desktop add github:bluish-yocean/dsh-ui-change
+```
+
+插件包根就是仓库根（单一 `package.json`），github spec 直接可装。
+也可用图形界面：**设置 → 插件市场 → 安装插件 → 输入 github spec**。
+
+安装后**重启 DSH**（desktop 需重启以加载补丁；web 模板改动能热生效）。
+
+### 方式 B：本地目录 link（开发路径）
 
 ```bash
 git clone https://github.com/bluish-yocean/dsh-ui-change.git
-dsh plugin --profile desktop add <仓库路径>/design-md-switcher
+dsh plugin --profile desktop add <仓库路径>
 ```
 
-或使用图形界面：**设置 → 插件市场 → 安装插件 → 输入本地目录**
-（选择仓库里的 `design-md-switcher/` 目录）。
+本地 link 适合改 `lib/client.js` 时就地验证：改动后刷新页面即可（生产环境）。
 
-安装后刷新页面（或重启 DSH）。
+### 零依赖与 vendor
 
-### 方式 B：发布到 npm 之后
-
-```bash
-dsh plugin --profile desktop add design-md-switcher
-```
-
-（如已发布到 registry；当前仓库以本地目录安装为准。）
+本包**零外部运行时依赖**：schemastery 3.18.4（MIT，含 cosmokit、
+@standard-schema/spec）已 vendor 进 `lib/vendor/`，安装不做任何依赖下载，
+也没有 postinstall / prepare 钩子。`lib/vendor/node_modules/` 必须留在 git 里——
+`.gitignore` 的 `/node_modules/` 只锚定仓库根，不会吞掉它。
 
 ### 验证安装
 
 打开 **设置 → 通用 → 通用设置 → UI设计方案选择**，应看到 17 套内置设计与「自定义」导入入口；
 选中任意一套，界面配色即时变化。
+
+### 排障
+
+- **设置页没有这一行**：先查 profile 的 `dsh.profile.bundles` 是否含
+  `design-md-switcher`。bundle 自带的 `insert` 补丁只对 bundles 成员生效；只在
+  `cordis.patch.yml` 里留 `- id: design-md-switcher` 配置覆盖不会插入条目。
+  缺了就在 Plugin Manager 重新启用（或对 profile 执行 `set_bundle`），再重启。
+- **`Cannot read properties of undefined (reading 'validate')`**：说明 `lib/vendor`
+  没到位，Host 半侧 Config 降级成纯形状对象，宿主拒建设置命名空间。确认
+  `lib/vendor/node_modules/@deepseek-ai/schemastery/lib/index.mjs` 存在；若来自
+  git，重新 clone 或 `git checkout -- lib/vendor`。
+
 
 ## 使用
 
@@ -75,13 +94,15 @@ dsh plugin --profile desktop add design-md-switcher
 ## 项目结构
 
 ```
-design-md-switcher/          插件包（安装这一目录）
-  lib/index.js               Host 半侧（空 apply + volatile Config）
-  lib/client.js              客户端全部逻辑：解析 → Token 映射 → 组件面 → 设置行
-  tests/run.js               零依赖测试（69 项）
-  tests/fixtures/builtin/    17 套内置设计与 design/*/design.md 的字节级镜像
-  tests/fixtures/{sap,playstation}.md  原始营销稿（解析健壮性样例）
-  cordis.patch.yml           组合包插入补丁
+package.json                 插件包唯一的版本真源与打包清单（包根 = 仓库根）
+lib/index.js                 Host 半侧（空 apply + volatile Config）
+lib/client.js                客户端全部逻辑：解析 → Token 映射 → 组件面 → 设置行
+lib/vendor/node_modules/     自包含 vendor（schemastery / cosmokit / @standard-schema/spec）
+tests/run.js                 零依赖测试（73 项）
+tests/fixtures/builtin/      17 套内置设计与 design/*/design.md 的字节级镜像
+tests/fixtures/{sap,playstation}.md  原始营销稿（解析健壮性样例）
+cordis.patch.yml             组合包插入补丁
+CHANGELOG.md                 版本变更记录
 design/                      17 份整理后的 DSH 消费子集 design.md
 docs/design-contract.md      解析/映射/应用/兼容性的契约（A–F）
 docs/implementation-notes.md 实现取舍与证据
@@ -91,13 +112,13 @@ research/                    DSH 客户端/主题 API 调研笔记
 ## 开发
 
 ```bash
-node design-md-switcher/tests/run.js     # 69 项测试，零依赖
+node tests/run.js     # 73 项测试，零依赖，在仓库根运行
 ```
 
 - 改 `design/*/design.md` 或映射表后，请同步 `tests/fixtures/builtin/<id>.md`（一致性测试会逐项比对）。
 - Token 词表与推导规则以 [docs/design-contract.md](docs/design-contract.md) 为准；
   新增 Token 需同时补契约、测试与内置常量。
-- 插件可直接以本地目录 link 安装，改动 `lib/client.js` 后刷新页面即可（生产环境）。
+- 本地目录 link 安装后，改动 `lib/client.js` 刷新页面即可（生产环境）。
 
 ## 已知边界
 
@@ -117,5 +138,5 @@ json
 
 ## License
 
-插件代码 MIT。`design/` 与 `design-md-switcher/tests/fixtures/` 中的设计规范文本源自
+插件代码 MIT。`design/` 与 `tests/fixtures/` 中的设计规范文本源自
 公开的 design-system 分析稿，仅用于样式研究；相关商标与设计归属其各自所有者。

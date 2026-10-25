@@ -1,6 +1,6 @@
 /**
  * design-md-switcher 零依赖测试（node:assert + 自写 runner）。
- * 运行：`node tests/run.js`（在 design-md-switcher/ 目录下）。
+ * 运行：在仓库根运行 `node tests/run.js`。
  *
  * 解析器/映射器断言直接消费 lib/client.js 经 Node 分支物化的生产代码
  * （globalThis.__designMdSwitcherInternal.__internal），单一真相源防漂移；
@@ -698,12 +698,13 @@ test('host: lib/index.js exports real-Schema Config (vendored) + empty apply', (
 test('manifest: package.json matches IC-2 verbatim', async () => {
   const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
   assert.equal(pkg.name, 'design-md-switcher')
-  assert.equal(pkg.version, '0.8.8')
+  assert.equal(pkg.version, '0.8.9')
   assert.equal(pkg.type, 'module')
   assert.equal(pkg.main, 'lib/index.js')
   assert.equal(pkg.exports['.'], './lib/index.js')
   assert.equal(pkg.exports['./client'], './lib/client.js')
-  assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml', 'README.md'])
+  assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml', 'README.md', 'CHANGELOG.md'])
+  assert.equal(pkg.repository.directory, undefined, '包根即仓库根：github spec 下不再有子目录偏移')
   assert.equal(pkg.dsh.bundle.patch, './cordis.patch.yml')
   assert.equal(pkg.dsh.client.platform, 'web')
   assert.equal(pkg.dsh.client.immediately, true)
