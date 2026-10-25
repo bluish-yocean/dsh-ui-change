@@ -107,11 +107,13 @@ TOKEN_TABLE 第 14 行 dark 数组末位的 `'ink'` 删去即可（tests/run.js 
 - **损坏 JSON 的导入**：customDesigns JSON 解析失败时，新导入以 `[新条目]` **替换**
   损坏列表（旧行为会永久锁死导入功能）；替换前行内提供「导出自定义设计原文」
   抢救（契约 F "保留原 JSON 供导出抢救"）。
-- **Host 半侧 schemastery**：`await import('@deepseek-ai/schemastery')` + try/catch
-  （本机自测/CI 无此依赖时降级为纯形状对象）；`.volatile()` 特性探测
-  （3.18.3 才有，对齐 dsh-experts/lib/settings.js:82-90 的既有实践；本机 profile
-  实测 `@deepseek-ai/schemastery` 3.18.4 有该方法，`S.string().volatile().default('')`
-  链式可用）。dsh-experts 以同样模式做顶层 await（dsh-experts/lib/index.js:35-41）。
+- **Host 半侧 schemastery**：相对路径静态导入
+  `./vendor/node_modules/@deepseek-ai/schemastery/lib/index.mjs`（v0.8.9 起；§0 记的是
+  早先的 bare specifier 版本）。try/catch 仍在，但**降级态就是故障态**：0.8.9 前
+  vendor 被 .gitignore 吞掉，别人 clone 后必然走降级路径，宿主报的却是
+  `Cannot read properties of undefined (reading 'validate')`——一个字都不提 vendor，
+  这就是那次排障花了 8 天的直接成本。`.volatile()` 仍做特性探测
+  （3.18.3 才有，对齐 dsh-experts/lib/settings.js:82-90 的既有实践）。
 - **测试如何跑生产代码**：client.js 在非浏览器分支以 stub require 物化一次 factory，
   经 `exports.__internal` 暴露纯逻辑；测试 `import` 该文件后读 globalThis 钩子——
   解析器/映射器/校验测试跑的就是浏览器将执行的同一份代码，内置一致性测试把
@@ -126,11 +128,12 @@ TOKEN_TABLE 第 14 行 dark 数组末位的 `'ink'` 删去即可（tests/run.js 
 ## 4. 测试
 
 命令：在仓库根 `node tests/run.js`（Node v24.19.0 实跑通过：
-38 passed, 0 failed, 38 total）。覆盖：解析器正常/负例/引用/重复键/块标量/未引号
-标量；映射器 14 Token 形状、契约 B.3 四个心算抽验、flip 区间两端、整键省略、
-直通例外、颜色原语；PaletteDoc 校验顺序/64KB/坏 JSON 容错/uniqueId；内置一致性
-×3；package.json/cordis.patch.yml/lib 源码结构断言（含禁止 setTheme/setFontSize、
-禁止 ESM 顶层语法的闸门）。
+80 passed, 0 failed, 80 total）。覆盖：解析器正常/负例/引用/重复键/块标量/未引号
+标量；映射器 Token 形状（基座层 + 别名引用层）、契约 B.3 抽验、flip 区间两端、
+整键省略、直通例外、颜色原语；PaletteDoc 校验顺序/64KB/坏 JSON 容错/uniqueId；
+内置一致性 ×3；状态色非空 / 色相语义 / 徽章背景与文字同值（v0.9.0）；
+package.json/cordis.patch.yml/lib 源码结构断言（含禁止 setTheme/setFontSize、
+禁止 ESM 顶层语法的闸门）；可安装性三条（见 §5）。
 
 **未覆盖项（如实标注）**：
 1. 浏览器/React 设置行未在真实 DOM 验证（Node 无 DOM）；行注册与 props 组合
@@ -143,3 +146,44 @@ TOKEN_TABLE 第 14 行 dark 数组末位的 `'ink'` 删去即可（tests/run.js 
    try/catch + promise.catch 兜底。
 4. volatile 字段 64KB/256KB 上限的宿主侧容忍度（Open Question 3）未实测，实现为
    客户端侧工程自限。
+
+## 5. 可安装性闸门（v0.9.0 收口，`tests/install-smoke.mjs`）
+
+**背景**：0.8.9 之前这个仓库在别人机器上根本装不上——潜伏 8 天、跨 v0.8.3–0.8.8
+六个已发版。两个独立缺陷叠加：
+
+1. **包根在子目录**：`package.json` 位于 `design-md-switcher/`，仓库根没有清单。
+   `dsh plugin add github:bluish-yocean/dsh-ui-change` 从仓库根读清单，取不到就装不上。
+2. **vendor 从未入库**：`.gitignore` 写裸 `node_modules/`，匹配任意层级，把
+   `lib/vendor/node_modules/**` 一并吞掉（`git log --diff-filter=A -- '*vendor*'`
+   只有修复提交本身）。
+
+**当时 73 项测试全绿的原因**：断言对象全是本机磁盘上的文件。零依赖 + 自带 vendor
+的设计让本地根本没有「从别处取包」这一步，于是「包在哪、包里有什么」永远碰不到——
+越自包含，越必须单独验证分发边界。
+
+**三条闸门**（都不看工作区）：
+
+- `install: 纯净树…`：`git archive HEAD` 展开到临时目录（= 别人 clone 拿到的内容），
+  断言根有 `package.json`、两个 vendor 入口都在、且 `import lib/index.js` 得到带
+  `~standard.validate` 的真 Schema（不是降级形状）。
+- `install: check-ignore…`：`git check-ignore -q <vendor 入口>` 必须退出码 1
+  （0 = 被忽略）。专盯 `.gitignore` 回归。
+- `install: npm pack…`：`npm pack --dry-run --json` 的清单必须含全部运行时必需项，
+  且不含 `tests/` `design/` `docs/` `research/`。
+
+**会红的证明**（一次性临时仓库实测，复现后已恢复）：
+
+| 变异 | 结果 |
+|---|---|
+| `git rm -r --cached lib/vendor` | G1 红：「纯净树缺 …schemastery…」 |
+| `.gitignore` 改回裸 `node_modules/` | G2 红（G1 连带） |
+| `files` 白名单把 `lib` 拆成逐文件 | G3 红：缺两个 vendor 入口 |
+
+**实现约束**（别改成 pipe）：子进程一律 `stdio:'ignore'`，需要读的输出直接写文件
+描述符——受限环境里无法打开命名管道，`spawn` 带 pipe 会 EPERM；`npm pack` 的
+`--cache` 必须指到临时目录（默认 `%LOCALAPPDATA%\npm-cache` 同样会被拒）。这两条
+是为了让闸门在沙箱里也能真跑，而不是变成与环境有关的假红。
+
+**语义**：`git archive HEAD` 取的是已提交状态，工作区未 `git add` 的新文件不会进
+纯净树——发布物 = 提交物，这是刻意的。

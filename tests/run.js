@@ -9,6 +9,7 @@
 import assert from 'node:assert/strict'
 import { readFile, readdir } from 'node:fs/promises'
 import { pathToFileURL, fileURLToPath } from 'node:url'
+import { installSmokeTests } from './install-smoke.mjs'
 
 const libDir = new URL('../lib/', import.meta.url)
 await import(pathToFileURL(fileURLToPath(new URL('client.js', libDir))).href)
@@ -963,6 +964,10 @@ test('client apply: component layer written to its own <style>, cleared on resto
     delete globalThis.document
   }
 })
+
+/* ── 可安装性：纯净树 + 打包清单（问「别人 clone 得装得上吗」，不看本机磁盘） ── */
+
+installSmokeTests(test)
 
 /* ── runner ── */
 
