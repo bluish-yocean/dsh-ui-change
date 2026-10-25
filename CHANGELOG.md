@@ -1,5 +1,19 @@
 # Changelog — design-md-switcher
 
+## 0.9.1 (2026-10-25)
+
+**无运行时变更**：`lib/` 与 `cordis.patch.yml` 与 0.9.0 逐字节相同，装出来的行为一样。
+本版只加了开发侧的「可安装性闸门」，用来盯住 0.9.0 之前那个「本地 77 项全绿、别人装不上」的失败模式。
+
+- **新增 `tests/install-smoke.mjs`**（3 条，只在仓库跑，不进包）：
+  1. `git archive HEAD` 出的纯净树里 `package.json` 在根、`lib/vendor` 两个入口在、`import lib/index.js` 能拿到真 Schema；
+  2. `git check-ignore` 对 `lib/vendor/node_modules/*` 必须未命中——防止 `.gitignore` 用裸 `node_modules/` 又把 vendored 依赖挡在提交外；
+  3. `npm pack --dry-run` 清单必须含 `lib/` `cordis.patch.yml` `README.md` `CHANGELOG.md`，且不含 `tests/` `design/` `docs/` `research/`。
+     三条都做过「弄坏 → 必须变红 → 恢复」的实测，不是写完就算。
+- **`tests/run.js` 77 → 80 项**；`docs/implementation-notes.md` 新增 §5 记录闸门原理与两个环境坑
+  （子进程必须 `stdio:'ignore'`、`npm pack --cache` 必须指到临时目录，否则受限环境下的失败与插件无关）。
+- **文档修正**：§3 里过时的「bare specifier 导入」描述、§4 里过时的用例数已按事实改写。
+
 ## 0.9.0 (2026-10-25)
 
 9 套内置方案补齐状态色 + 状态色候选链收上游语义别名 + 移除第二品牌色兜底 + 状态色相闸门 + 徽章可见性修复：
