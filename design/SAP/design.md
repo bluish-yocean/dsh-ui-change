@@ -24,6 +24,9 @@ colors:
   muted-soft: "#354a5f"
   primary-active: "#0057d2"
   primary-disabled: "#475e75"
+  # v0.8.10：状态色取 Fiori 语义色（此前缺 warning/error → state-warn/error 整键跳过）
+  warning: "#e9730c"
+  error: "#bb0000"
   dark:
     # 深色取克制的深海军蓝（原稿 navy #022879 过亮）；主色不再走翻转（否则会变成
     # 荧光蓝），显式给中等饱和的 SAP 蓝。
@@ -36,6 +39,9 @@ colors:
     primary-active: "#3a5fa8"
     hairline: "rgba(245, 247, 250, 0.16)"
     hairline-soft: "rgba(245, 247, 250, 0.10)"
+    # 深底上提亮，保证状态色在深海军蓝上仍可辨
+    warning: "#f0a04b"
+    error: "#e06666"
 typography:
   body:
     fontFamily: "72 Brand Variable"

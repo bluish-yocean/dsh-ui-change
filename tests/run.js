@@ -673,6 +673,56 @@ for (const [stem, text] of Object.entries(builtinFixtures)) {
   })
 }
 
+/* ── 状态色闸门（v0.8.10）：17 套内置不缺状态色；映射器收上游语义别名 ── */
+
+test('builtins: every builtin derives all state tokens (v0.8.10)', () => {
+  const stateTokens = [
+    '--dsw-alias-state-success-primary',
+    '--dsw-alias-state-warn-primary',
+    '--dsw-alias-state-error-primary'
+  ]
+  for (const d of internal.BUILTIN_DESIGNS) {
+    const { tokens, skipped } = internal.mapDesignToTokens(d)
+    // 此前 5 套方案缺状态键 → 整键省略，宿主保留 DSH 默认色、观感不跟方案走。
+    assert.deepEqual(skipped, [], d.id + ': no skipped token')
+    for (const name of stateTokens) {
+      const pair = tokens[name]
+      assert.ok(pair, `${d.id}: ${name} mapped`)
+      assert.equal(typeof pair.light, 'string', `${d.id}: ${name}.light`)
+      assert.equal(typeof pair.dark, 'string', `${d.id}: ${name}.dark`)
+      assert.ok(pair.light.trim() && pair.dark.trim(), `${d.id}: ${name} light/dark non-empty`)
+    }
+  }
+})
+
+test('mapper: upstream semantic aliases feed state tokens', () => {
+  // design-md/ 的上游文件用 semantic-success / semantic-warning / semantic-error 命名，
+  // 旧候选链只认 success|accent-teal 等 → 导入即整键跳过。
+  const doc = internal.parseDesignDoc([
+    '---',
+    'name: "Alias Probe"',
+    'version: "alpha"',
+    'colors:',
+    '  canvas: "#ffffff"',
+    '  ink: "#111111"',
+    '  semantic-success: "#1f8a65"',
+    '  semantic-warning: "#b45309"',
+    '  semantic-error: "#c0392b"',
+    '---'
+  ].join('\n'))
+  const { tokens } = internal.mapDesignToTokens(doc)
+  const probe = {
+    '--dsw-alias-state-success-primary': '#1f8a65',
+    '--dsw-alias-state-warn-primary': '#b45309',
+    '--dsw-alias-state-error-primary': '#c0392b'
+  }
+  for (const [name, value] of Object.entries(probe)) {
+    assert.ok(tokens[name], name + ' mapped from its semantic alias')
+    assert.equal(tokens[name].light, value, name + '.light = semantic alias color')
+    assert.ok(tokens[name].dark.trim(), name + '.dark non-empty')
+  }
+})
+
 /* ── 宿主半侧与 manifest 结构（契约 IC-2/IC-3/E.2） ── */
 
 test('host: lib/index.js exports real-Schema Config (vendored) + empty apply', () => {

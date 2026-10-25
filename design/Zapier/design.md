@@ -19,6 +19,10 @@ colors:
   surface-card: "#f8f4f0"
   primary-active: "#ff4f00"
   primary-disabled: "rgba(32, 21, 21, 0.12)"
+  # v0.8.10：状态色按 Zapier 调色板补齐（此前缺三键 → 三个 state Token 整键跳过）
+  success: "#1f8a65"
+  warning: "#b45309"
+  error: "#c0392b"
 typography:
   body:
     fontFamily: "Inter, system-ui, sans-serif"
