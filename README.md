@@ -98,7 +98,8 @@ package.json                 插件包唯一的版本真源与打包清单（包
 lib/index.js                 Host 半侧（空 apply + volatile Config）
 lib/client.js                客户端全部逻辑：解析 → Token 映射 → 组件面 → 设置行
 lib/vendor/node_modules/     自包含 vendor（schemastery / cosmokit / @standard-schema/spec）
-tests/run.js                 零依赖测试（77 项）
+tests/run.js                 零依赖测试（80 项）
+tests/install-smoke.mjs      可安装性闸门（纯净树 / 忽略审计 / 打包清单）
 tests/fixtures/builtin/      17 套内置设计与 design/*/design.md 的字节级镜像
 tests/fixtures/{sap,playstation}.md  原始营销稿（解析健壮性样例）
 cordis.patch.yml             组合包插入补丁
@@ -112,10 +113,13 @@ research/                    DSH 客户端/主题 API 调研笔记
 ## 开发
 
 ```bash
-node tests/run.js     # 77 项测试，零依赖，在仓库根运行
+node tests/run.js     # 80 项测试，零依赖，在仓库根运行
 ```
 
 - 改 `design/*/design.md` 或映射表后，请同步 `tests/fixtures/builtin/<id>.md`（一致性测试会逐项比对）。
+- 可安装性三条（`tests/install-smoke.mjs`）会调 `git` / `tar` / `npm`，断言对象是
+  `git archive HEAD` 的纯净树——问的就是「提交上去的仓库，别人装得上吗」，所以改动
+  没 `git add` 进去时它看的是旧 HEAD。
 - Token 词表与推导规则以 [docs/design-contract.md](docs/design-contract.md) 为准；
   新增 Token 需同时补契约、测试与内置常量。
 - 本地目录 link 安装后，改动 `lib/client.js` 刷新页面即可（生产环境）。
