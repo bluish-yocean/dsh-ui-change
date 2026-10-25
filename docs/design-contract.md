@@ -156,6 +156,12 @@
 | diff | `code-diff-*`、`file-diff-*` | `color-mix(state-success｜error …)` / 基座状态色 |
 | 组件专属 | `specific-bubble*`、`input-major`、`login-input`、`menu`、`selector`、`sidebar-nav-item-*`、`tip` | `bg-layer-1/2`、`brand-primary`、`interactive-bg-hover`、`menu-surface-fill` |
 
+- **`sidebar-nav-item-active-accent` 取淡色、不取饱和强调色**（v0.8.10）：它在宿主里是「强调色的最浅阶」
+  （浅色 `#e4edfd` 淡蓝底、深色深灰底），提问卡「推荐」徽章拿它当**背景**、拿
+  `--dsw-alias-button-info-fill` 当**文字**。若映射成饱和 `brand-primary`，背景与文字同值、文字隐形，
+  徽章只剩一块色块。故取 `color-mix(in srgb, brand-primary 14%, transparent)`：淡底 + 饱和品牌字，
+  深浅两套自动跟随。这条由测试 `badge: nav-item-active-accent never equals button-info-fill` 守着。
+
 - **不覆盖**：`--dsw-static-*` 色阶、`bg-mask-*` / `bg-document-selection` / `bg-skeleton` / `border-inverted*`（中性遮罩/选区常量）、遗留别名 `brand-primary-new-color*`，以及阴影、几何、字体变量。
 - 导出 JSON 时这些键的值是 `var()` / `color-mix()` 原文；导入后同样由 CSS 求解。
 
