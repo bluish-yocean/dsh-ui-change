@@ -2,8 +2,14 @@
 
 ## 0.8.10 (2026-10-25)
 
-9 套内置方案补齐状态色 + 状态色候选链收上游语义别名 + 移除第二品牌色兜底 + 状态色相闸门：
+9 套内置方案补齐状态色 + 状态色候选链收上游语义别名 + 移除第二品牌色兜底 + 状态色相闸门 + 徽章可见性修复：
 
+- **修复提问卡「推荐」徽章文字不可见**：宿主 `dsh-client-ui-user-questions` 的徽章把
+  `--dsw-specific-sidebar-nav-item-active-accent` 当背景、`--dsw-alias-button-info-fill` 当文字，
+  而本插件把前者也映射成 `brand-primary` → 背景与文字同值，徽章只剩一块色块。
+  该 Token 在宿主里是「强调色的最浅阶」（浅色 `#e4edfd` 淡蓝底、深色深灰底），本就不该是饱和色；
+  现改映射为 `color-mix(in srgb, var(--dsw-alias-brand-primary) 14%, transparent)` ——
+  品牌淡底 + 饱和品牌字，深浅两套配色自动跟随。此 Token 全仓只有徽章一个使用方，无其他面副作用。
 - **补齐 5 套内置方案的状态色（第一批）**：Apple / Cursor / Playstation / SAP / Zapier 的
   `colors` 缺状态键，浅色链全空 → 映射器按 B.1 整键省略 `state-success/warn/error-primary`，
   宿主因此保留 DSH 默认状态色、观感不跟方案走。取值：Apple 取 Apple HIG 系统色
@@ -31,7 +37,7 @@
 - **测试闸门**：新增「17 套内置 `skipped` 全空 + 三个状态 Token 均有非空 light/dark」、
   「`semantic-*` 别名喂进状态 Token」与「状态色相必须语义正确」（success 落 [85,175]、
   error 落 [340,360]∪[0,30]、warn 不得与 error 同色；`hsl()`/`rgba()` 值跳过不误判）三条用例；
-  测试 76 项全绿（`node tests/run.js`）。
+  测试 77 项全绿（`node tests/run.js`）。
 - `design/{Apple,Cursor,Playstation,SAP,Zapier,Airbnb,HP,Oracle,Webflow}/design.md` 与
   `tests/fixtures/builtin/` 下同名 fixture 字节级同步；契约 B.2 候选键、B.3 第 11/12/13 行与说明同步。
 

@@ -98,7 +98,7 @@ package.json                 插件包唯一的版本真源与打包清单（包
 lib/index.js                 Host 半侧（空 apply + volatile Config）
 lib/client.js                客户端全部逻辑：解析 → Token 映射 → 组件面 → 设置行
 lib/vendor/node_modules/     自包含 vendor（schemastery / cosmokit / @standard-schema/spec）
-tests/run.js                 零依赖测试（76 项）
+tests/run.js                 零依赖测试（77 项）
 tests/fixtures/builtin/      17 套内置设计与 design/*/design.md 的字节级镜像
 tests/fixtures/{sap,playstation}.md  原始营销稿（解析健壮性样例）
 cordis.patch.yml             组合包插入补丁
@@ -112,7 +112,7 @@ research/                    DSH 客户端/主题 API 调研笔记
 ## 开发
 
 ```bash
-node tests/run.js     # 76 项测试，零依赖，在仓库根运行
+node tests/run.js     # 77 项测试，零依赖，在仓库根运行
 ```
 
 - 改 `design/*/design.md` 或映射表后，请同步 `tests/fixtures/builtin/<id>.md`（一致性测试会逐项比对）。

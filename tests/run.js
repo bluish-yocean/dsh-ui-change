@@ -770,6 +770,30 @@ test('builtins: state token hues stay semantic (v0.8.10)', () => {
   }
 })
 
+/* ── 徽章可见性闸门（v0.8.10）：同一元素上背景与文字不得取到同一个 Token 值 ── */
+
+// 宿主 dsh-client-ui-user-questions 的提问卡徽章（.wnLwla_badge）把这两个 Token 用在同一
+// 元素的两条不同声明上：`sidebar-nav-item-active-accent` 当背景、`button-info-fill` 当文字。
+// 两者一旦解析成同一个值（都取 brand-primary 那版就是这样），字与底同色、徽章只剩一块色块。
+// 这条闸门只认「不等」：具体取值归设计与调色板管，同值才是必须变红的回归。
+test('badge: nav-item-active-accent never equals button-info-fill (v0.8.10)', () => {
+  const BG = '--dsw-specific-sidebar-nav-item-active-accent'
+  const FG = '--dsw-alias-button-info-fill'
+  for (const d of internal.BUILTIN_DESIGNS) {
+    const { tokens } = internal.mapDesignToTokens(d)
+    const bg = tokens[BG]
+    const fg = tokens[FG]
+    assert.ok(bg && fg, `${d.id}: 两个徽章 Token 都必须映射出来`)
+    for (const mode of ['light', 'dark']) {
+      assert.notEqual(
+        bg[mode],
+        fg[mode],
+        `${d.id}.${mode}: 徽章背景 ${bg[mode]} 与文字 ${fg[mode]} 同值——宿主同一元素上背景/文字取到同一个 Token，文字会隐形`
+      )
+    }
+  }
+})
+
 /* ── 宿主半侧与 manifest 结构（契约 IC-2/IC-3/E.2） ── */
 
 test('host: lib/index.js exports real-Schema Config (vendored) + empty apply', () => {
