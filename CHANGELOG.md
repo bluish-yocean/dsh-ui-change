@@ -1,5 +1,28 @@
 # Changelog — design-md-switcher
 
+## Unreleased
+
+5 套内置方案补齐状态色 + 状态色候选链收上游语义别名：
+
+- **补齐 5 套内置方案的状态色**：Apple / Cursor / Playstation / SAP / Zapier 的
+  `colors` 缺状态键，浅色链全空 → 映射器按 B.1 整键省略 `state-success/warn/error-primary`，
+  宿主因此保留 DSH 默认状态色、观感不跟方案走。取值：Apple 取 Apple HIG 系统色
+  （浅 `#34c759/#ff9500/#ff3b30`，深 `#30d158/#ff9f0a/#ff453a`）；Cursor 的 warning
+  取上游 timeline-done 实测色 `#c08532`；Playstation 的 success 按自身调色板补
+  `#1a7f4b`；SAP 取 Fiori 语义色（浅 `#e9730c/#bb0000`，深 `#f0a04b/#e06666`）；
+  Zapier 按自身调色板补 `#1f8a65/#b45309/#c0392b`。
+  **Playstation / Zapier 无上游状态色实测数据**，这两套的值按各自调色板补齐，非实测。
+- **状态色候选链收上游语义别名**：success 追加 `semantic-success|success-accent|positive`、
+  warn 追加 `semantic-warning|accent-warning|attention`、error 追加
+  `semantic-error|critical|accent-danger|negative`（dark 链同这三组）。仓库 `design-md/`
+  的第三方 DESIGN.md 多用这套键名，此前导入即整键跳过。既有方案命中的位置在前几位，
+  顺序未动，取色不漂移。
+- **测试闸门**：新增「17 套内置 `skipped` 全空 + 三个状态 Token 均有非空 light/dark」与
+  「`semantic-*` 别名喂进状态 Token」两条用例；测试 75 项全绿（`node tests/run.js`）。
+- `design/{Apple,Cursor,Playstation,SAP,Zapier}/design.md` 与
+  `tests/fixtures/builtin/{apple,cursor,playstation,sap,zapier}.md` 字节级同步；
+  契约 B.2 候选键、B.3 第 11/12/13 行与说明同步。
+
 ## 0.8.9 (2026-10-25)
 
 github spec 安装修复：包根迁到仓库根 + vendor 纳入 git。

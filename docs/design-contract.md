@@ -90,10 +90,11 @@
 - 暗色边框：`hairline-dark, ash-dark`；暗色正文：`on-dark, canvas-light`；暗色次级文字：`on-dark-mute, on-dark-soft, mute-dark`
 - 亮色底：`canvas, canvas-light`；亮色卡片：`surface-card, surface-soft, chrome`；亮色边框：`hairline, hairline-soft`
 - 亮色正文：`ink, body-strong, body`；亮色次级：`muted, muted-soft, mute-light, ash-light`
-- 状态：success `success|accent-teal`；warn `warning|accent-amber`；error `error|commerce|warning`（PlayStation 无 `error`，`warning:#c81b3a` 实为红色，故 error 链吸收它）
+- 状态：success `success|accent-teal`；warn `warning|accent-amber`；error `error|commerce|warning`（PlayStation 无 `error`，`warning:#c81b3a` 实为红色，故 error 链吸收它）；v0.8.10 起再收上游语义别名，见下条
 - v0.2.0 新增：按钮 hover `primary-pressed|primary-active|primary-deep|primary`；三级文字 `muted-soft|mute-light|ink-meta|ink-nav|muted|body`；高对比填充 `ink|ink-deep|ink-elevated|body-strong`（dark：`on-dark|canvas-light|canvas`）；悬浮底取 `ink`/`on-dark` 后压透明度（不做推导原语之外的混合）。
 - v0.4.0 新增：按钮底色 `canvas|canvas-light|surface-card|surface-soft`（dark：`surface-dark-elevated|surface-dark-card|ink-elevated`，链空 flip 0.10–0.16）；「新会话」hover 底色取 `ink|body-strong|ink-deep`（dark：`on-dark|on-dark-mute|canvas-light`）压 6%/8%（与悬浮底同一 tint 语义）。
 - v0.6.0 新增：菜单图标 `muted-soft|muted|mute-light|ink-meta|body|ink`（dark：`on-dark-soft|on-dark-mute|mute-dark`）；菜单材质 `surface-card|surface-soft|canvas` 压 92%（dark：`surface-dark-elevated|…` 压 90%）；焦点环 `primary`（dark：同品牌色）；tooltip 键帽 `surface-soft|surface-card|canvas`（dark：`on-dark|canvas-light`）；开关滑块 `canvas|canvas-light`（dark：`on-dark|canvas-light`）。
+- v0.8.10 新增：状态语义别名 success `semantic-success|success-accent|positive`；warn `semantic-warning|accent-warning|attention`；error `semantic-error|critical|accent-danger|negative`（dark 链同这三组，浅底 `*-bg`/`*-surface` 键不入暗色链）。
 
 ### B.3 逐 Token 映射表
 
@@ -109,9 +110,9 @@
 | 8 | `--dsw-alias-label-primary` | `ink → body-strong → body` | pick(暗色正文)；否则 `flip(light, 0.88, 0.96)` |
 | 9 | `--dsw-alias-label-secondary` | `muted → muted-soft` | pick(暗色次级文字)；否则 `flip(light, 0.58, 0.70)` |
 | 10 | `--dsw-alias-state-idle-primary` | `muted-soft → mute-light → ash-light → muted` | pick(暗色次级文字 ∪ `mute-dark, ash-dark`)；否则 `flip(light, 0.45, 0.55)` |
-| 11 | `--dsw-alias-state-success-primary` | `success → accent-teal` | 同 light 值；若 `lum < 0.3` → `flip(·, 0.45, 0.62)` |
-| 12 | `--dsw-alias-state-warn-primary` | `warning → accent-amber` | 同 light 值；若 `lum < 0.3` → `flip(·, 0.45, 0.62)` |
-| 13 | `--dsw-alias-state-error-primary` | `error → commerce → warning` | 同 light 值；若 `lum < 0.3` → `flip(·, 0.45, 0.62)` |
+| 11 | `--dsw-alias-state-success-primary` | `success → accent-teal → semantic-success → success-accent → positive` | pick(暗色同名键 ∪ 语义别名)；否则同 light 值；若 `lum < 0.3` → `flip(·, 0.45, 0.62)` |
+| 12 | `--dsw-alias-state-warn-primary` | `warning → accent-amber → semantic-warning → accent-warning → attention` | pick(暗色同名键 ∪ 语义别名)；否则同 light 值；若 `lum < 0.3` → `flip(·, 0.45, 0.62)` |
+| 13 | `--dsw-alias-state-error-primary` | `error → commerce → warning → semantic-error → critical → accent-danger → negative` | pick(暗色同名键 ∪ 语义别名)；否则同 light 值；若 `lum < 0.3` → `flip(·, 0.45, 0.62)` |
 | 14 | `--dsw-specific-sidebar-fill` | `chrome → surface-soft → surface-card → canvas` | pick(`surface-dark-soft, surface-dark, canvas-dark`)；否则 `flip(light, 0.07, 0.13)` |
 | 15 | `--dsw-alias-label-tertiary` | `muted-soft → mute-light → ink-meta → ink-nav → muted → body` | pick(`on-dark-soft, on-dark-mute, mute-dark`)；否则 `flip(light, 0.62, 0.74)` |
 | 16 | `--dsw-alias-interactive-bg-hover` | `ink → ink-deep → body-strong → ink-lead`，取 RGB 压 **6%** 输出 `rgba()` | pick(`on-dark, canvas-light, on-dark-mute`) 压 **8%**；链空 → `flip(light, 0.70, 0.90)` 再压 8% |
@@ -130,6 +131,8 @@
 > 为什么加第 19/20 个（v0.4.0）：侧栏「新会话」按钮的底色与 hover 底色同样绑在 `--dsw-static-*`（浅色恒白、hover 恒灰），只覆盖前 18 个时按钮不跟设计走。补上后按钮底色 = 设计的 canvas、hover = 设计 ink 的 6% 叠加，配合 v0.3.1 的 hover 位移/阴影形成完整悬浮反馈。
 
 > 为什么加这 5 个（v0.6.0）：菜单图标、菜单材质、焦点环、tooltip 键帽、开关滑块在宿主里各自绑在 `--dsw-static-*` 或常量上（菜单 `#f8f9fa94`、图标 neutral-800、焦点环 `#4176E6/#7AAAFF`、键帽 = tooltip 底 +18% 白、滑块 neutral-00），只覆盖前 20 个时这些控件仍不跟设计。新增后：菜单图标按次级文字色、菜单材质按卡面容色的 92%/90% 叠色、焦点环用品牌色、键帽/滑块按浅色面，且都是纯颜色（不碰几何）。
+
+> v0.8.10：状态色三行补上游语义别名（`semantic-*`、`success-accent`、`accent-warning`、`accent-danger`、`critical`、`attention`、`positive`、`negative`），前几位顺序不动。一是 Apple / Cursor / Playstation / SAP / Zapier 五套内置方案原本没有状态键，按 B.1 整键省略 → 宿主持有 DSH 默认状态色、观感不跟方案走，现按各自调色板补齐；二是仓库 `design-md/` 的第三方 DESIGN.md 多用这套语义键名，旧链导入即跳过。无上游实测值的方案在 CHANGELOG 标注来源。
 
 ### B.3b 别名引用层（v0.7.0，81 个）
 
