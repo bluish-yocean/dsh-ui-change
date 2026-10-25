@@ -1,7 +1,8 @@
 # 本地/临时
+# 注意：/node_modules/ 只锚定仓库根；lib/vendor/node_modules 是插件自包含 vendor，必须进 git
 .tmp/
 .pnpm-store/
-node_modules/
+/node_modules/
 design-originals-*/
 design-md/
 需求.md
