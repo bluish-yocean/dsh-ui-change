@@ -185,5 +185,13 @@ package.json/cordis.patch.yml/lib 源码结构断言（含禁止 setTheme/setFon
 `--cache` 必须指到临时目录（默认 `%LOCALAPPDATA%\npm-cache` 同样会被拒）。这两条
 是为了让闸门在沙箱里也能真跑，而不是变成与环境有关的假红。
 
+**真实安装实测**（0.9.0 修好后，走用户入口而非本地 link）：
+`dsh plugin --profile install-probe add github:bluish-yocean/dsh-ui-change`
+→ `+ design-md-switcher 0.9.0`，10.3s，退出码 0；装出来的包里
+`lib/vendor/node_modules/{schemastery,cosmokit}` 俱在，`import lib/index.js`
+得到真 Schema、`validate({})` 无 issue。0.8.9 之前这条命令直接失败。
+顺带记一条机制：`dsh plugin` **只是把参数转发给 profile 目录的 pnpm**——这正好
+解释了「包根必须等于仓库根」：pnpm 从仓库根读清单。
+
 **语义**：`git archive HEAD` 取的是已提交状态，工作区未 `git add` 的新文件不会进
 纯净树——发布物 = 提交物，这是刻意的。
