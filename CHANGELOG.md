@@ -1,10 +1,10 @@
 # Changelog — design-md-switcher
 
-## Unreleased
+## 0.8.10 (2026-10-25)
 
-5 套内置方案补齐状态色 + 状态色候选链收上游语义别名：
+9 套内置方案补齐状态色 + 状态色候选链收上游语义别名 + 移除第二品牌色兜底 + 状态色相闸门：
 
-- **补齐 5 套内置方案的状态色**：Apple / Cursor / Playstation / SAP / Zapier 的
+- **补齐 5 套内置方案的状态色（第一批）**：Apple / Cursor / Playstation / SAP / Zapier 的
   `colors` 缺状态键，浅色链全空 → 映射器按 B.1 整键省略 `state-success/warn/error-primary`，
   宿主因此保留 DSH 默认状态色、观感不跟方案走。取值：Apple 取 Apple HIG 系统色
   （浅 `#34c759/#ff9500/#ff3b30`，深 `#30d158/#ff9f0a/#ff453a`）；Cursor 的 warning
@@ -12,16 +12,28 @@
   `#1a7f4b`；SAP 取 Fiori 语义色（浅 `#e9730c/#bb0000`，深 `#f0a04b/#e06666`）；
   Zapier 按自身调色板补 `#1f8a65/#b45309/#c0392b`。
   **Playstation / Zapier 无上游状态色实测数据**，这两套的值按各自调色板补齐，非实测。
+- **补齐 5 套内置方案的状态色（第二批）**：Airbnb（`success #008a05` / `warning #b26a00`）、
+  HP（`#0e8a3e` / `#a85b00`）、Oracle（`#1d7a3e` / `#8a6100`）、SAP（补 `success #256f3a`，
+  warning/error 已在第一批）、Webflow（补 `warning #b45309`，success 沿用 `#00d722`）。
+  这 5 套缺 success/warning 键时，状态链兜底到 `accent-teal` / `accent-amber`，借到的是各方案
+  「第二品牌色」的色相：Airbnb success 紫 274°、warn 洋红 334°；HP 青灰 195° / 红 0°；
+  Oracle 近白青 180° / 浅金 43°；SAP 天蓝 206°；Webflow 品红 313°。
+  **这 5 套无上游状态色实测数据**，值按各自调色板补齐。只补浅色表：这几套缺暗色状态键时，
+  `mode:'same'` 会按 `lum < 0.3` 自动翻转提亮（B.3 #11-13）。
 - **状态色候选链收上游语义别名**：success 追加 `semantic-success|success-accent|positive`、
   warn 追加 `semantic-warning|accent-warning|attention`、error 追加
   `semantic-error|critical|accent-danger|negative`（dark 链同这三组）。仓库 `design-md/`
   的第三方 DESIGN.md 多用这套键名，此前导入即整键跳过。既有方案命中的位置在前几位，
   顺序未动，取色不漂移。
-- **测试闸门**：新增「17 套内置 `skipped` 全空 + 三个状态 Token 均有非空 light/dark」与
-  「`semantic-*` 别名喂进状态 Token」两条用例；测试 75 项全绿（`node tests/run.js`）。
-- `design/{Apple,Cursor,Playstation,SAP,Zapier}/design.md` 与
-  `tests/fixtures/builtin/{apple,cursor,playstation,sap,zapier}.md` 字节级同步；
-  契约 B.2 候选键、B.3 第 11/12/13 行与说明同步。
+- **状态链移除第二品牌色兜底**：`accent-teal` / `accent-amber` 从 success / warn 的浅色链删除
+  （dark 链本来没有这两个键，error 链不动）。这两个键是各方案的「第二品牌色」，色相与
+  成功 / 警告语义无关，留着会让后续新增的方案继续借到紫 / 蓝 / 品红。
+- **测试闸门**：新增「17 套内置 `skipped` 全空 + 三个状态 Token 均有非空 light/dark」、
+  「`semantic-*` 别名喂进状态 Token」与「状态色相必须语义正确」（success 落 [85,175]、
+  error 落 [340,360]∪[0,30]、warn 不得与 error 同色；`hsl()`/`rgba()` 值跳过不误判）三条用例；
+  测试 76 项全绿（`node tests/run.js`）。
+- `design/{Apple,Cursor,Playstation,SAP,Zapier,Airbnb,HP,Oracle,Webflow}/design.md` 与
+  `tests/fixtures/builtin/` 下同名 fixture 字节级同步；契约 B.2 候选键、B.3 第 11/12/13 行与说明同步。
 
 ## 0.8.9 (2026-10-25)
 

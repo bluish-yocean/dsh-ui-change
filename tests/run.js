@@ -723,6 +723,53 @@ test('mapper: upstream semantic aliases feed state tokens', () => {
   }
 })
 
+/* ── 状态色相闸门（v0.8.10）：状态色的色相必须承载语义 ── */
+
+// 只认 #rrggbb：hsl()/rgba() 是 flip 推导或 tint 结果，色相不是设计给的，跳过不误判。
+const hexRgb = (value) => {
+  const m = /^#([0-9a-f]{6})$/i.exec(String(value).trim())
+  if (!m) return null
+  const n = parseInt(m[1], 16)
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+}
+
+const rgbHue = ([r, g, b]) => {
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  if (max === min) return 0
+  const d = max - min
+  const sector = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4
+  return (sector * 60 + 360) % 360
+}
+
+// 阈值 40 的判据边界：这条闸门抓的是「警告与错误被映射成同一色」的退化（距离 0 或个位数），
+// 同色回归才是不变量；色相相近但不是同色的两个颜色合法——红系警示与金棕警示都是各自独立的
+// 设计选择，色相距间不归这条闸门管（success/error 的色相区间才是语义约束）。
+const WARN_ERROR_MIN_DISTANCE = 40
+
+test('builtins: state token hues stay semantic (v0.8.10)', () => {
+  // success 必须偏绿、error 必须偏红；warn 的红/金都是合法警示色，只要求与 error 有区分度。
+  for (const d of internal.BUILTIN_DESIGNS) {
+    const { tokens } = internal.mapDesignToTokens(d)
+    const light = {}
+    for (const kind of ['success', 'warn', 'error']) light[kind] = tokens[`--dsw-alias-state-${kind}-primary`].light
+    const rgb = {}
+    for (const [kind, value] of Object.entries(light)) rgb[kind] = hexRgb(value)
+    if (rgb.success) {
+      const hue = rgbHue(rgb.success)
+      assert.ok(hue >= 85 && hue <= 175, `${d.id}: success ${light.success} 色相 ${hue.toFixed(1)} 不在 [85,175]（应偏绿）`)
+    }
+    if (rgb.error) {
+      const hue = rgbHue(rgb.error)
+      assert.ok(hue >= 340 || hue <= 30, `${d.id}: error ${light.error} 色相 ${hue.toFixed(1)} 不在 [340,360]∪[0,30]（应偏红）`)
+    }
+    if (rgb.warn && rgb.error) {
+      const dist = Math.hypot(rgb.warn[0] - rgb.error[0], rgb.warn[1] - rgb.error[1], rgb.warn[2] - rgb.error[2])
+      assert.ok(dist > WARN_ERROR_MIN_DISTANCE, `${d.id}: warn ${light.warn} 与 error ${light.error} 的 RGB 距离 ${dist.toFixed(1)} ≤ ${WARN_ERROR_MIN_DISTANCE}（警示色与错误色无法区分）`)
+    }
+  }
+})
+
 /* ── 宿主半侧与 manifest 结构（契约 IC-2/IC-3/E.2） ── */
 
 test('host: lib/index.js exports real-Schema Config (vendored) + empty apply', () => {
@@ -748,7 +795,7 @@ test('host: lib/index.js exports real-Schema Config (vendored) + empty apply', (
 test('manifest: package.json matches IC-2 verbatim', async () => {
   const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
   assert.equal(pkg.name, 'design-md-switcher')
-  assert.equal(pkg.version, '0.8.9')
+  assert.equal(pkg.version, '0.8.10')
   assert.equal(pkg.type, 'module')
   assert.equal(pkg.main, 'lib/index.js')
   assert.equal(pkg.exports['.'], './lib/index.js')

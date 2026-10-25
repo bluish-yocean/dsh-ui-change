@@ -23,6 +23,10 @@ colors:
   muted: "#161513"
   primary-active: "#312d2a"
   primary-disabled: "#e4e1dd"
+  # v0.8.10：补显式状态色。此前缺 success/warning，状态链接到了
+  # accent-teal(#d6e5e5 近白青)/accent-amber(#f0cc71 浅金)，色相与语义无关。
+  success: "#1d7a3e"
+  warning: "#8a6100"
 typography:
   body:
     fontFamily: "Oracle Sans"
